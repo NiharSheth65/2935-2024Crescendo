@@ -8,12 +8,15 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.autoDriveForwardSetDistance;
-import frc.robot.commands.secondDriveForwardCommand;
-import frc.robot.commands.shootSetSpeedCommand;
+import frc.robot.commands.autoCommands.autoDriveForwardSetDistance;
+import frc.robot.commands.autoCommands.autoTurnOnHeadingCommand;
+import frc.robot.commands.autoCommands.twoPieceAuto;
+import frc.robot.commands.drivetrainCommands.DefaultDriveCommand;
+import frc.robot.commands.drivetrainCommands.DriveVelocityControl;
+import frc.robot.commands.intakeCommands.IntakeCommand;
+import frc.robot.commands.intakeCommands.IntakeVelocityCommand;
+import frc.robot.commands.shooterCommands.shootSetSpeedCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -21,7 +24,10 @@ import frc.robot.subsystems.ShooterSubsystem;
 
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -51,11 +57,19 @@ public class RobotContainer {
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
+
+  private final Command m_twoPieceAuto = new twoPieceAuto(m_DriveSubsystem); 
+
+  SendableChooser<Command> m_autoChooser = new SendableChooser<>(); 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
+
+    m_autoChooser.setDefaultOption("two peice", m_twoPieceAuto);
+    Shuffleboard.getTab("Autonomous").add(m_autoChooser); 
+    
     configureBindings();
-    defaultCommnads(); 
+    defaultCommands(); 
   }
 
   /**
@@ -68,8 +82,9 @@ public class RobotContainer {
    * joysticks}.
    */
 
-  private void defaultCommnads(){
+  private void defaultCommands(){
     m_DriveSubsystem.setDefaultCommand(new DefaultDriveCommand(m_DriveSubsystem, joystick));
+    // m_DriveSubsystem.setDefaultCommand(new DriveVelocityControl(m_DriveSubsystem, joystick, 0));
   }
   
   private void configureBindings() {
@@ -88,19 +103,30 @@ public class RobotContainer {
     ); 
 
     BUTTON_B_PRIMARY.toggleOnTrue(
-        new autoDriveForwardSetDistance(m_DriveSubsystem, 0)
+        // new autoDriveForwardSetDistance(m_DriveSubsystem, -50)
+        // new autoTurnOnHeadingCommand(m_DriveSubsystem, 39)
         // new secondDriveForwardCommand(m_DriveSubsystem, 10) 
-    ); 
+        // new DriveVelocityControl(m_DriveSubsystem, joystick, 5700)
+        new shootSetSpeedCommand(m_ShooterSubsystem, -ShooterConstants.subwooferSpeedTop, -ShooterConstants.subwooferSpeedBottom)
+
+      ); 
+
+      BUTTON_B_PRIMARY.toggleOnFalse(
+        new shootSetSpeedCommand(m_ShooterSubsystem, 0, 0)
+      ); 
 
 
     BUTTON_RB_PRIMARY.onTrue(
-      new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed)  
+      new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed) 
+      // new IntakeVelocityCommand(m_IntakeSubsystem, IntakeConstants.intakeVelocity)   
     );
 
     BUTTON_RB_PRIMARY.onFalse(
-      new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeStopSpeed) 
+      // new IntakeVelocityCommand(m_IntakeSubsystem, IntakeConstants.intakeStopVelocity)
+      new IntakeCommand(m_IntakeSubsystem, 0)  
     ); 
 
+  
     BUTTON_LB_PRIMARY.onTrue(
       new IntakeCommand(m_IntakeSubsystem, IntakeConstants.outtakeSpeed) 
     ); 
@@ -119,8 +145,15 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
+
+  public void autonomousInit(){
+    m_DriveSubsystem.resetEncoders();
+    m_DriveSubsystem.zeroHeading();
+  }
+
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    autonomousInit();
+    return m_autoChooser.getSelected(); 
   }
 }

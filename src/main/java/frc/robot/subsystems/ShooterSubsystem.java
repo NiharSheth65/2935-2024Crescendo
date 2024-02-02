@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,31 +16,24 @@ import frc.robot.Constants.ShooterConstants;
 public class ShooterSubsystem extends SubsystemBase {
   /** Creates a new ShooterSubsystem. */
 
-  private CANSparkMax leftFrontShooterMotor; 
-  private CANSparkMax leftBackShooterMotor; 
+  private CANSparkMax topShooterMotor; 
+  private CANSparkMax bottomShooterMotor;  
 
-  private CANSparkMax rightFrontShooterMotor;  
-  private CANSparkMax rightBackShooterMotor; 
-
-  // private RelativeEncoder leftShooterEncoder; 
-  private RelativeEncoder rightShooterEncoder; 
+  private RelativeEncoder topShooterEncoder; 
+  private RelativeEncoder bottomShooterEncoder; 
 
   public ShooterSubsystem() {
 
-    leftFrontShooterMotor = new CANSparkMax(ShooterConstants.leftFrontShooterMotorId, MotorType.kBrushless); 
-    // leftBackShooterMotor = new CANSparkMax(ShooterConstants.leftBackShooterMotorId, MotorType.kBrushless); 
+    topShooterMotor = new CANSparkMax(ShooterConstants.topShooterMotorId, MotorType.kBrushless); 
+    bottomShooterMotor = new CANSparkMax(ShooterConstants.bottomShooterMotorId, MotorType.kBrushless);
 
-    rightFrontShooterMotor = new CANSparkMax(ShooterConstants.rightFrontShooterMotorId, MotorType.kBrushless);
-    // rightBackShooterMotor = new CANSparkMax(ShooterConstants.rightBackShooterMotorId, MotorType.kBrushless);
+    topShooterMotor.restoreFactoryDefaults(); 
+    bottomShooterMotor.restoreFactoryDefaults(); 
 
-    leftFrontShooterMotor.restoreFactoryDefaults(); 
-    rightFrontShooterMotor.restoreFactoryDefaults(); 
-  
-    // leftBackShooterMotor.follow(leftFrontShooterMotor); 
-    // rightBackShooterMotor.follow(rightFrontShooterMotor); 
-    
-    // rightFrontShooterMotor.setInverted(true);
-  
+    bottomShooterMotor.setInverted(true);
+
+    topShooterEncoder.setPosition(0); 
+    bottomShooterEncoder.setPosition(0); 
   }
 
   @Override
@@ -49,13 +43,66 @@ public class ShooterSubsystem extends SubsystemBase {
     // SmartDashboard.putNumber("velocity", leftShooterEncoder.getVelocity());  
   }
 
+  public void setBrakeMode(){
+    topShooterMotor.setIdleMode(IdleMode.kBrake); 
+    bottomShooterMotor.setIdleMode(IdleMode.kBrake); 
+  }
+
+  public void setCoastMode(){
+    topShooterMotor.setIdleMode(IdleMode.kCoast); 
+    bottomShooterMotor.setIdleMode(IdleMode.kCoast); 
+  }
+
+  public void resetEncoders(){
+    topShooterEncoder.setPosition(0); 
+    bottomShooterEncoder.setPosition(0); 
+  }
+
+  public double topMotorPosition(){
+    return topShooterEncoder.getPosition(); 
+  }
+
+  public double bottomMotorPosition(){
+    return bottomShooterEncoder.getPosition(); 
+  }
+
+  public double topMotorVelocity(){
+    return topShooterEncoder.getVelocity(); 
+  }
+
+  public double bottomMotorVelocity(){
+    return bottomShooterEncoder.getVelocity(); 
+  }
+
+  public void setTopPIDF(double p, double i, double d, double f){
+    topShooterMotor.getPIDController().setP(p); 
+    topShooterMotor.getPIDController().setI(i); 
+    topShooterMotor.getPIDController().setD(d); 
+    topShooterMotor.getPIDController().setFF(f); 
+  }
+
+  public void setBottomPIDF(double p, double i, double d, double f){
+    bottomShooterMotor.getPIDController().setP(p);
+    bottomShooterMotor.getPIDController().setI(i);
+    bottomShooterMotor.getPIDController().setD(d);
+    bottomShooterMotor.getPIDController().setFF(f);
+  }
+
+  public void setTopMotorOutputConstraints(double min, double max){
+    topShooterMotor.getPIDController().setOutputRange(min, max); 
+  }
+
+  public void setBottomMotorOutputConstraints(double min, double max){
+    bottomShooterMotor.getPIDController().setOutputRange(min, max); 
+  }
+
   public void setShooter(double topSpeed, double bottomSpeed){
-    rightFrontShooterMotor.set(topSpeed);
-    leftFrontShooterMotor.set(-bottomSpeed);
+    topShooterMotor.set(topSpeed);
+    bottomShooterMotor.set(-bottomSpeed);
   }
 
   public void stop(){
-    leftFrontShooterMotor.stopMotor();
-    rightFrontShooterMotor.stopMotor();
+    bottomShooterMotor.stopMotor();
+    topShooterMotor.stopMotor();
   }
 }

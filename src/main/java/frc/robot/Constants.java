@@ -49,7 +49,7 @@ public final class Constants {
     public static final double driveSlowSpeed = 0.5; 
     public static final double driveFastSpeed = 1; 
 
-    public static final double turnSpeed = 0.75; 
+    public static final double turnSpeed = 0.5; 
 
     public static final double driveDeadband = 0.1; 
     public static final double turnDead = 0.1; 
@@ -62,11 +62,8 @@ public final class Constants {
   }
 
   public static class ShooterConstants{
-    public static final int leftFrontShooterMotorId = 5; 
-    // public static final int leftBackShooterMotorId = 8; 
-
-    public static final int rightFrontShooterMotorId = 6; 
-    // public static final int rightBackShooterMotorId = 5; 
+    public static final int topShooterMotorId = 5; 
+    public static final int bottomShooterMotorId = 6; 
 
     public static final double shooterFullSpeed = 1.0; 
     public static final double shooterOffSpeed = 0.0; 
@@ -84,8 +81,12 @@ public final class Constants {
     public static final double bottomSpeed = 0.28;
 
 
-    public static final double subwooferSpeedTop = 0.20; 
+    public static final double subwooferSpeedTop = 0.50; 
     public static final double subwooferSpeedBottom = 0.50; 
+    // public static final double subwooferSpeedTop = 0.20; 
+    // public static final double subwooferSpeedBottom = 0.50; 
+    
+    
     // public static final double topSpeed = 1.0;
     // public static final double bottomSpeed = 1.0;
 
@@ -97,9 +98,12 @@ public final class Constants {
 
   public static class IntakeConstants{
     public static final int intakeMotorId = 7; 
-    public static final double intakeSpeed = 0.30; 
+    public static final double intakeSpeed = 0.40; 
+    public static final double intakeVelocity = 0.10 * 11000; 
+    public static final double outtakeVelocity = -0.10 * 11000; 
     public static final double intakeStopSpeed = 0; 
-    public static final double outtakeSpeed = -0.30; 
+    public static final double intakeStopVelocity = 0; 
+    public static final double outtakeSpeed = -0.70; 
   }
 
 

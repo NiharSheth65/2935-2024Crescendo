@@ -5,25 +5,79 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.IntakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
 
-  private CANSparkMax intakeMotor; 
+  private CANSparkMax intakeMotor = new CANSparkMax(IntakeConstants.intakeMotorId, MotorType.kBrushless); 
+  private RelativeEncoder intakeEncoder = intakeMotor.getEncoder(); 
   
   public IntakeSubsystem() {
-    intakeMotor = new CANSparkMax(0, MotorType.kBrushless); 
+    
     intakeMotor.restoreFactoryDefaults(); 
+    intakeMotor.setInverted(true);
+    intakeEncoder.setPosition(0); 
+
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+  
+    SmartDashboard.putNumber("intake velocity", intakeVelocity()); 
   }
 
+
+  public void setBrakeMode(){
+    intakeMotor.setIdleMode(IdleMode.kBrake); 
+  }
+
+  public void setCoastMode(){
+    intakeMotor.setIdleMode(IdleMode.kCoast); 
+  }
+
+  public void resetEncoders(){
+    intakeEncoder.setPosition(0);  
+  }
+
+  public double intakePosition(){
+    return intakeEncoder.getPosition(); 
+  }
+
+  public double intakeVelocity(){
+    return intakeEncoder.getVelocity(); 
+  }
+
+  public void setIntakePIDF(double p, double i, double d, double f){
+    intakeMotor.getPIDController().setP(p); 
+    intakeMotor.getPIDController().setI(i); 
+    intakeMotor.getPIDController().setD(d); 
+    intakeMotor.getPIDController().setFF(f); 
+  }
+
+  public void intakeOutPutConstraints(double min, double max){
+    intakeMotor.getPIDController().setOutputRange(min, max); 
+  }
+
+  public void setIntakeVelocityMode(){
+    intakeMotor.getPIDController().setReference(0, ControlType.kVelocity); 
+  }
+
+  public void setIntakePowerMode(){
+    intakeMotor.getPIDController().setReference(0, ControlType.kVoltage); 
+  }
+
+  public void setVelocity(double intakeVelocity){
+    intakeMotor.getPIDController().setReference(intakeVelocity, ControlType.kVelocity); 
+  }
 
   public void setIntake(double speed){
     intakeMotor.set(speed);

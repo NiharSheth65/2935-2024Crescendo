@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -27,6 +28,9 @@ public class DriveSubsystem extends SubsystemBase {
 
   private RelativeEncoder rightFrontEncoder = rightMotorFront.getEncoder(); 
   private RelativeEncoder leftFrontEncoder = leftMotorFront.getEncoder(); 
+
+  private RelativeEncoder rightBackEncoder = rightMotorBack.getEncoder(); 
+  private RelativeEncoder leftBackEncoder = leftMotorBack.getEncoder(); 
 
   DifferentialDrive differentialDrive = new DifferentialDrive(leftMotorFront, rightMotorFront); 
 
@@ -49,6 +53,9 @@ public class DriveSubsystem extends SubsystemBase {
     rightFrontEncoder.setPosition(0); 
     leftFrontEncoder.setPosition(0); 
 
+    leftBackEncoder.setPosition(0); 
+    rightBackEncoder.setPosition(0); 
+
     navx = new AHRS(SPI.Port.kMXP); 
     navx.reset();
     navx.zeroYaw();
@@ -59,9 +66,13 @@ public class DriveSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("left encoder", leftEncoderPosition()); 
-    SmartDashboard.putNumber("right encoder", rightEncoderPosition()); 
+    SmartDashboard.putNumber("right encoder", rightEncoderPosition());
+    
+    
     SmartDashboard.putNumber("left velocity", leftEncoderVelocity()); 
     SmartDashboard.putNumber("right velocity", rightEncoderVelocity()); 
+    SmartDashboard.putNumber("right back velocity", rightBackEncoderVelocity()); 
+    SmartDashboard.putNumber("left back velocity", leftBackEncoderVelocity()); 
 
     SmartDashboard.putNumber("left wheel inches", leftEncoderToInches()); 
     SmartDashboard.putNumber("right wheel inches", rightEncoderToInches()); 
@@ -69,6 +80,9 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("yaw", getYaw()); 
     SmartDashboard.putNumber("pitch", getPitch()); 
     SmartDashboard.putNumber("roll", getRoll()); 
+
+        
+    SmartDashboard.putNumber("RELATIVE", getAngle0to360()); 
   }
 
   public void setBrakeMode(){
@@ -102,8 +116,16 @@ public class DriveSubsystem extends SubsystemBase {
     return leftFrontEncoder.getVelocity(); 
   }
 
+  public double leftBackEncoderVelocity(){
+    return leftBackEncoder.getVelocity(); 
+  }
+
   public double rightEncoderVelocity(){
     return rightFrontEncoder.getVelocity();  
+  }
+
+  public double rightBackEncoderVelocity(){
+    return rightBackEncoder.getVelocity(); 
   }
 
   public double rightEncoderToInches(){
@@ -124,16 +146,105 @@ public class DriveSubsystem extends SubsystemBase {
 
   // navx orientation causes pitch to be roll 
   public double getPitch(){
-    return navx.getRoll(); 
+    return navx.getPitch(); 
   }
 
   public double getYaw(){
-    return navx.getPitch(); 
+    return navx.getYaw(); 
+  }
+
+  public double getAngle0to360(){
+   
+    double angle = 0; 
+
+    if(getYaw() < 180 && getYaw() > 0){
+      angle = getYaw(); 
+    }
+
+    else if(getYaw() < 0){
+      angle  = 180 + (getYaw() + 180); 
+    }
+
+    else if(getYaw() > 395.5){
+      angle = 0; 
+    }
+
+
+    return angle; 
+  }
+
+
+  public double getHeadingError(double desiredHeading){
+
+    double error; 
+
+    if(desiredHeading > getAngle0to360() + 180){
+      error = (desiredHeading - getAngle0to360()) - 360; 
+    }
+
+    else if(desiredHeading < getAngle0to360() - 180){
+      error = (desiredHeading - getAngle0to360()) + 360;  
+    }
+
+    else{
+      error = desiredHeading - getAngle0to360(); 
+    }
+
+    return error; 
   }
 
   public void zeroHeading(){
     navx.reset(); 
     navx.zeroYaw(); 
+  }
+
+
+  public void setLeftPIDF(double p, double i, double d, double f){
+    leftMotorFront.getPIDController().setP(p); 
+    leftMotorFront.getPIDController().setI(i); 
+    leftMotorFront.getPIDController().setD(d); 
+    leftMotorFront.getPIDController().setFF(f); 
+  }
+
+  public void setRightPIDF(double p, double i, double d, double f){
+    rightMotorFront.getPIDController().setP(p); 
+    rightMotorFront.getPIDController().setI(i); 
+    rightMotorFront.getPIDController().setD(d); 
+    rightMotorFront.getPIDController().setFF(f);
+  }
+
+  public void leftOutPutConstraints(double min, double max){
+    leftMotorFront.getPIDController().setOutputRange(min, max); 
+  }
+
+  public void rightOutPutConstraints(double min, double max){
+    rightMotorFront.getPIDController().setOutputRange(min, max); 
+  }
+
+  public void setRightVelocityMode(){
+    rightMotorFront.getPIDController().setReference(0, ControlType.kVelocity); 
+  }
+
+  public void setLeftVelocityMode(){
+    leftMotorFront.getPIDController().setReference(0, ControlType.kVelocity); 
+  }
+
+  public void setRightPowerMode(){
+    rightMotorFront.getPIDController().setReference(0, ControlType.kVoltage); 
+  }
+
+  public void setLeftPowerMode(){
+    leftMotorFront.getPIDController().setReference(0, ControlType.kVoltage);
+  }
+
+  public void setVelocity(double leftVelocity, double rightVelocity){
+    leftMotorFront.getPIDController().setReference(leftVelocity, ControlType.kVelocity); 
+    // leftMotorBack.getPIDController().setReference(leftVelocity, ControlType.kVelocity); 
+    rightMotorFront.getPIDController().setReference(rightVelocity, ControlType.kVelocity); 
+    // rightMotorBack.getPIDController().setReference(rightVelocity, ControlType.kVelocity); 
+    
+
+    // differentialDrive.tankDrive(leftVelocity, rightVelocity);
   }
 
   public void set(double drive, double turn){
