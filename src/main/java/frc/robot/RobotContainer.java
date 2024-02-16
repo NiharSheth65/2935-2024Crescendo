@@ -7,7 +7,7 @@ package frc.robot;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.commands.Autos;
+import frc.robot.Constants.WristConstants;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.autoCommands.autoDriveForwardSetDistance;
 import frc.robot.commands.autoCommands.autoTurnOnHeadingCommand;
@@ -17,18 +17,29 @@ import frc.robot.commands.drivetrainCommands.DriveVelocityControl;
 import frc.robot.commands.intakeCommands.IntakeCommand;
 import frc.robot.commands.intakeCommands.IntakeVelocityCommand;
 import frc.robot.commands.shooterCommands.shootSetSpeedCommand;
+import frc.robot.commands.shooterCommands.shooterTimeCommand;
+import frc.robot.commands.shooterCommands.shooterVelocityCommand;
+import frc.robot.commands.visionCommands.visionDriveCommand;
+import frc.robot.commands.visionCommands.visionReadCommand;
+import frc.robot.commands.visionCommands.visionTurnCommand;
+import frc.robot.commands.wristCommands.wristSetPosition;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.WristSubsystem;
 
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -45,25 +56,44 @@ public class RobotContainer {
   private final DriveSubsystem m_DriveSubsystem = new DriveSubsystem();
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(); 
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem(); 
+  private final WristSubsystem m_WristSubsystem = new WristSubsystem(); 
+  private final VisionSubsystem m_VisionSubsystem = new VisionSubsystem(); 
 
-  private final Joystick joystick = new Joystick(0); 
+  private final Joystick joystick = new Joystick(OperatorConstants.primaryControllerPort); 
+  private final Joystick joystickSecondary = new Joystick(OperatorConstants.secondaryControllerPort); 
 
   private final JoystickButton BUTTON_A_PRIMARY = new JoystickButton(joystick, OperatorConstants.BUTTON_A_PORT); 
   private final JoystickButton BUTTON_B_PRIMARY = new JoystickButton(joystick, OperatorConstants.BUTTON_B_PORT); 
+  private final JoystickButton BUTTON_Y_PRIMARY = new JoystickButton(joystick, OperatorConstants.BUTTON_Y_PORT); 
+  
   private final JoystickButton BUTTON_RB_PRIMARY = new JoystickButton(joystick, OperatorConstants.BUTTON_RB_PORT); 
   private final JoystickButton BUTTON_LB_PRIMARY = new JoystickButton(joystick, OperatorConstants.BUTTON_LB_PORT); 
+
+
+  // secondary controller 
+  private final JoystickButton BUTTON_A_SECONDARY = new JoystickButton(joystickSecondary, OperatorConstants.BUTTON_A_PORT); 
+  private final JoystickButton BUTTON_B_SECONDARY = new JoystickButton(joystickSecondary, OperatorConstants.BUTTON_B_PORT); 
+  private final JoystickButton BUTTON_Y_SECONDARY = new JoystickButton(joystickSecondary, OperatorConstants.BUTTON_Y_PORT); 
+  
+  private final JoystickButton BUTTON_RB_SECONDARY = new JoystickButton(joystickSecondary, OperatorConstants.BUTTON_RB_PORT); 
+  private final JoystickButton BUTTON_LB_SECONDARY = new JoystickButton(joystickSecondary, OperatorConstants.BUTTON_LB_PORT); 
+
+  private final CommandGenericHID controllerPrimary = new CommandGenericHID(OperatorConstants.primaryControllerPort);  
+  private final CommandGenericHID controllerSecondary = new CommandGenericHID(OperatorConstants.secondaryControllerPort);  
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
 
-  private final Command m_twoPieceAuto = new twoPieceAuto(m_DriveSubsystem); 
+  private final Command m_twoPieceAuto = new twoPieceAuto(m_DriveSubsystem, m_ShooterSubsystem, m_IntakeSubsystem, m_WristSubsystem); 
 
   SendableChooser<Command> m_autoChooser = new SendableChooser<>(); 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
+
+    CameraServer.startAutomaticCapture(); 
 
     m_autoChooser.setDefaultOption("two peice", m_twoPieceAuto);
     Shuffleboard.getTab("Autonomous").add(m_autoChooser); 
@@ -84,59 +114,76 @@ public class RobotContainer {
 
   private void defaultCommands(){
     m_DriveSubsystem.setDefaultCommand(new DefaultDriveCommand(m_DriveSubsystem, joystick));
-    // m_DriveSubsystem.setDefaultCommand(new DriveVelocityControl(m_DriveSubsystem, joystick, 0));
+    m_VisionSubsystem.setDefaultCommand(new visionReadCommand(m_VisionSubsystem));
+    // m_WristSubsystem.setDefaultCommand(new wristSetPosition(m_WristSubsystem, 0));
+  
   }
   
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());''
-    BUTTON_A_PRIMARY.onFalse(
-      new shootSetSpeedCommand(m_ShooterSubsystem, ShooterConstants.shooterOffSpeed, ShooterConstants.shooterOffSpeed)
+    BUTTON_Y_PRIMARY.onTrue(
+      new visionTurnCommand(m_DriveSubsystem, m_VisionSubsystem, 0, false)
+      .andThen(new visionDriveCommand(m_DriveSubsystem, m_VisionSubsystem, false, 0, 27))
+      .andThen(new visionTurnCommand(m_DriveSubsystem, m_VisionSubsystem, 0, false))
+      
+    
+    ); 
+
+      // new limelightReadCommand(m_LimlightSubsystem, false) 
+      
+
+    BUTTON_Y_PRIMARY.onFalse(
+      new visionTurnCommand(m_DriveSubsystem, m_VisionSubsystem, 0, true)
+      .andThen(new visionDriveCommand(m_DriveSubsystem, m_VisionSubsystem, true, 0,  27))
+    ); 
+
+    
+    controllerSecondary.axisGreaterThan(OperatorConstants.rightTriggerAxis, OperatorConstants.triggerThreshold).toggleOnFalse(new shootSetSpeedCommand(m_ShooterSubsystem, 0, 0)); 
+    controllerSecondary.axisGreaterThan(OperatorConstants.rightTriggerAxis, OperatorConstants.triggerThreshold).toggleOnTrue(new shooterVelocityCommand(m_ShooterSubsystem, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerTopMotorSpeed)); 
+
+    controllerSecondary.axisGreaterThan(OperatorConstants.leftTriggerAxis, OperatorConstants.triggerThreshold).toggleOnFalse(new shootSetSpeedCommand(m_ShooterSubsystem, 0, 0)); 
+    controllerSecondary.axisGreaterThan(OperatorConstants.leftTriggerAxis, OperatorConstants.triggerThreshold).toggleOnTrue(new shooterVelocityCommand(m_ShooterSubsystem, ShooterConstants.ampTopMotorSpeed, ShooterConstants.ampBottomMotorSpeed)); 
+    
+    BUTTON_Y_SECONDARY.onTrue(
+      new ParallelCommandGroup(
+        new wristSetPosition(m_WristSubsystem, WristConstants.wristIntakePosition)
+        // new IntakeCommand(m_IntakeSubsystem,IntakeConstants.outtakeSpeed * 0.7)
+      )   
+    ); 
+
+    BUTTON_Y_SECONDARY.onFalse(
+      new ParallelCommandGroup(
+        new wristSetPosition(m_WristSubsystem, WristConstants.wristfeedShooterPosition)
+        // new IntakeCommand(m_IntakeSubsystem, 0)
+      )
+    ); 
+    
+
+    BUTTON_RB_SECONDARY.onTrue(
+      new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed)
+    ); 
+
+    BUTTON_RB_SECONDARY.onFalse(
+      new IntakeCommand(m_IntakeSubsystem, 0) 
     );
 
-    BUTTON_A_PRIMARY.onTrue(
-        new shootSetSpeedCommand(m_ShooterSubsystem, ShooterConstants.subwooferSpeedTop, ShooterConstants.subwooferSpeedBottom)
-        // new shootSetSpeedCommand(m_ShooterSubsystem, IntakeConstants.intakeSpeed, IntakeConstants.intakeSpeed)
+    BUTTON_LB_SECONDARY.onTrue(
+      new IntakeCommand(m_IntakeSubsystem, IntakeConstants.outtakeSpeed)
     ); 
 
-    BUTTON_B_PRIMARY.toggleOnTrue(
-        // new autoDriveForwardSetDistance(m_DriveSubsystem, -50)
-        // new autoTurnOnHeadingCommand(m_DriveSubsystem, 39)
-        // new secondDriveForwardCommand(m_DriveSubsystem, 10) 
-        // new DriveVelocityControl(m_DriveSubsystem, joystick, 5700)
-        new shootSetSpeedCommand(m_ShooterSubsystem, -ShooterConstants.subwooferSpeedTop, -ShooterConstants.subwooferSpeedBottom)
-
-      ); 
-
-      BUTTON_B_PRIMARY.toggleOnFalse(
-        new shootSetSpeedCommand(m_ShooterSubsystem, 0, 0)
-      ); 
-
-
-    BUTTON_RB_PRIMARY.onTrue(
-      new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed) 
-      // new IntakeVelocityCommand(m_IntakeSubsystem, IntakeConstants.intakeVelocity)   
-    );
-
-    BUTTON_RB_PRIMARY.onFalse(
-      // new IntakeVelocityCommand(m_IntakeSubsystem, IntakeConstants.intakeStopVelocity)
-      new IntakeCommand(m_IntakeSubsystem, 0)  
+    BUTTON_LB_SECONDARY.onFalse(
+      new IntakeCommand(m_IntakeSubsystem, 0)
     ); 
 
-  
-    BUTTON_LB_PRIMARY.onTrue(
-      new IntakeCommand(m_IntakeSubsystem, IntakeConstants.outtakeSpeed) 
+
+    BUTTON_B_SECONDARY.onTrue(
+      new shooterVelocityCommand(m_ShooterSubsystem, ShooterConstants.ampTopMotorSpeed, ShooterConstants.ampBottomMotorSpeed)
     ); 
 
-    BUTTON_LB_PRIMARY.onFalse(
-      new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeStopSpeed)
-    );  
-
-
-
+    BUTTON_B_SECONDARY.onFalse(
+      new shooterVelocityCommand(m_ShooterSubsystem, 0, 0)
+    ); 
 
   }
 
@@ -146,9 +193,16 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
 
+  public void resetEncoders(){
+    m_DriveSubsystem.resetEncoders();
+    m_ShooterSubsystem.resetEncoders(); 
+    m_WristSubsystem.resetEncoders();
+  }
+
   public void autonomousInit(){
     m_DriveSubsystem.resetEncoders();
     m_DriveSubsystem.zeroHeading();
+    m_WristSubsystem.resetEncoders();
   }
 
   public Command getAutonomousCommand() {

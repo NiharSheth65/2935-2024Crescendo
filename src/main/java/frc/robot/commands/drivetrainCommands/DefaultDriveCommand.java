@@ -84,7 +84,7 @@ public class DefaultDriveCommand extends Command {
     }
 
     else{
-      turn = -joy.getRawAxis(OperatorConstants.turnJoystickAxis)*DriveConstants.turnSpeed; 
+      turn = joy.getRawAxis(OperatorConstants.turnJoystickAxis)*DriveConstants.turnSpeed; 
     }
     
 

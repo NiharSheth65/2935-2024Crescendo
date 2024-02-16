@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class shooterVelocityCommand extends Command {
+public class shooterTimeCommand extends Command {
   
   private ShooterSubsystem SHOOTER_SUBSYSTEM; 
 
@@ -37,12 +37,19 @@ public class shooterVelocityCommand extends Command {
   private SlewRateLimiter topLimiter = new SlewRateLimiter(2); 
   private SlewRateLimiter bottomLimiter = new SlewRateLimiter(2); 
 
+
+  double initialTime; 
+  double runTime; 
+
+  boolean commandEnded = false; 
+
   /** Creates a new shooterVelocityCommand. */
-  public shooterVelocityCommand(ShooterSubsystem shooter, double topMotorSpeed, double bottomMotorSpeed) {
+  public shooterTimeCommand(ShooterSubsystem shooter, double topMotorSpeed, double bottomMotorSpeed, double runTime) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.SHOOTER_SUBSYSTEM = shooter; 
     this.topShooterSpeed = topMotorSpeed; 
     this.bottomShooterSpeed = bottomMotorSpeed; 
+    this.runTime = runTime; 
     addRequirements(SHOOTER_SUBSYSTEM);
   }
 
@@ -51,10 +58,12 @@ public class shooterVelocityCommand extends Command {
   public void initialize() {
     SHOOTER_SUBSYSTEM.setShooterVelocityMode();
     SHOOTER_SUBSYSTEM.setTopPIDF(topShooterKp, topShooterKi, topShooterKd, topShooterKFf);
-    SHOOTER_SUBSYSTEM.setBottomPIDF(bottomShooterKp, bottomShooterKi, bottomShooterKd, bottomShooterKFf);
-
+    SHOOTER_SUBSYSTEM.setBottomPIDF(bottomShooterKp, bottomShooterKi, bottomShooterKd, bottomShooterKFf); 
+    SHOOTER_SUBSYSTEM.setRampRate(1);
     SHOOTER_SUBSYSTEM.setTopMotorOutputConstraints(topMin, topMax);
     SHOOTER_SUBSYSTEM.setBottomMotorOutputConstraints(bottomMin, bottomMax);
+    
+    initialTime = System.currentTimeMillis(); 
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -64,8 +73,16 @@ public class shooterVelocityCommand extends Command {
     SHOOTER_SUBSYSTEM.setVelocityTop((topShooterSpeed*3));
     SHOOTER_SUBSYSTEM.setVelocityBottom((bottomShooterSpeed*3));
 
-    SmartDashboard.putNumber("top motor veocity", SHOOTER_SUBSYSTEM.topMotorVelocity()); 
-    SmartDashboard.putNumber("bottom motor veocity", SHOOTER_SUBSYSTEM.bottomMotorVelocity()); 
+        
+    if(Math.abs(System.currentTimeMillis() - initialTime) > runTime){
+      commandEnded = true; 
+    }
+
+    else{
+      commandEnded = false; 
+    }
+
+    SmartDashboard.putBoolean("command ended", commandEnded); 
   }
 
   // Called once the command ends or is interrupted.
@@ -77,6 +94,14 @@ public class shooterVelocityCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    
+    if(Math.abs(System.currentTimeMillis() - initialTime) > runTime){
+      return true; 
+    }
+
+    else{
+      return false;
+    }
+
   }
 }

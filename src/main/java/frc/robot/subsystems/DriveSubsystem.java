@@ -19,6 +19,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 
 public class DriveSubsystem extends SubsystemBase {
+
+  private final String DRIVE_PREFIX = "SmartDashboard/Drive"; 
+
   /** Creates a new DriveSubsystem. */
 
   private CANSparkMax leftMotorFront = new CANSparkMax(DriveConstants.leftFrontMotorId, MotorType.kBrushless); 
@@ -44,8 +47,8 @@ public class DriveSubsystem extends SubsystemBase {
     rightMotorFront.restoreFactoryDefaults(); 
     rightMotorBack.restoreFactoryDefaults(); 
 
-    rightMotorFront.setInverted(true);
-    leftMotorFront.setInverted(false);
+    rightMotorFront.setInverted(false);
+    leftMotorFront.setInverted(true);
     
     leftMotorBack.follow(leftMotorFront); 
     rightMotorBack.follow(rightMotorFront); 
@@ -65,24 +68,24 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("left encoder", leftEncoderPosition()); 
+    SmartDashboard.putNumber(DRIVE_PREFIX + "left encoder", leftEncoderPosition()); 
     SmartDashboard.putNumber("right encoder", rightEncoderPosition());
     
     
-    SmartDashboard.putNumber("left velocity", leftEncoderVelocity()); 
-    SmartDashboard.putNumber("right velocity", rightEncoderVelocity()); 
-    SmartDashboard.putNumber("right back velocity", rightBackEncoderVelocity()); 
-    SmartDashboard.putNumber("left back velocity", leftBackEncoderVelocity()); 
+    SmartDashboard.putNumber(DRIVE_PREFIX + "left velocity", leftEncoderVelocity()); 
+    SmartDashboard.putNumber(DRIVE_PREFIX + "right velocity", rightEncoderVelocity()); 
+    SmartDashboard.putNumber(DRIVE_PREFIX + "right back velocity", rightBackEncoderVelocity()); 
+    SmartDashboard.putNumber(DRIVE_PREFIX + "left back velocity", leftBackEncoderVelocity()); 
 
-    SmartDashboard.putNumber("left wheel inches", leftEncoderToInches()); 
-    SmartDashboard.putNumber("right wheel inches", rightEncoderToInches()); 
+    SmartDashboard.putNumber(DRIVE_PREFIX + "left wheel inches", leftEncoderToInches()); 
+    SmartDashboard.putNumber(DRIVE_PREFIX + "right wheel inches", rightEncoderToInches()); 
   
-    SmartDashboard.putNumber("yaw", getYaw()); 
-    SmartDashboard.putNumber("pitch", getPitch()); 
-    SmartDashboard.putNumber("roll", getRoll()); 
+    SmartDashboard.putNumber(DRIVE_PREFIX + "yaw", getYaw()); 
+    SmartDashboard.putNumber(DRIVE_PREFIX + "pitch", getPitch()); 
+    SmartDashboard.putNumber(DRIVE_PREFIX + "roll", getRoll()); 
 
         
-    SmartDashboard.putNumber("RELATIVE", getAngle0to360()); 
+    SmartDashboard.putNumber(DRIVE_PREFIX + "RELATIVE", getAngle0to360()); 
   }
 
   public void setBrakeMode(){

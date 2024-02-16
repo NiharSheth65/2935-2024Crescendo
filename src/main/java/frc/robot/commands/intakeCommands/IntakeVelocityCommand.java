@@ -12,7 +12,7 @@ public class IntakeVelocityCommand extends Command {
   private IntakeSubsystem intake; 
   private double intakeSpeed; 
 
-  private double intakeMotorKp = 6e-5; 
+  private double intakeMotorKp = 10; 
   private double intakeMotorKi = 0.000000; 
   private double intakeMotorKd = 0; 
   private double intakeMotorKIz = 0; 
@@ -26,7 +26,6 @@ public class IntakeVelocityCommand extends Command {
     // Use addRequirements() here to declare subsystem dependencies.
     this.intake = intake; 
     this.intakeSpeed = speed; 
-
     addRequirements(intake);
   }
 
@@ -34,7 +33,7 @@ public class IntakeVelocityCommand extends Command {
   @Override
   public void initialize() {
     intake.setIntakeVelocityMode();
-    intake.setIntakePIDF(intakeMotorKp, intakeMax, intakeMotorKd, intakeMotorKFf);
+    intake.setLeftIntakePIDF(intakeMotorKp, intakeMax, intakeMotorKd, intakeMotorKFf);
     intake.intakeOutPutConstraints(intakeMin, intakeMax);
   }
 

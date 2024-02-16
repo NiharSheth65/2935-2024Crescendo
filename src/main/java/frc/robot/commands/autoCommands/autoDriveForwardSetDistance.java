@@ -30,8 +30,10 @@ public class autoDriveForwardSetDistance extends Command {
   private SlewRateLimiter left_Limiter = new SlewRateLimiter(10); 
   private SlewRateLimiter right_Limiter = new SlewRateLimiter(10); 
 
+  double maxDriveSpeed; 
 
-  public autoDriveForwardSetDistance(DriveSubsystem drive, double distance) {
+
+  public autoDriveForwardSetDistance(DriveSubsystem drive, double distance, double maxSpeed) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.DRIVE_SUBSYSTEM = drive; 
     this.distanceInInches = distance;    
@@ -39,6 +41,8 @@ public class autoDriveForwardSetDistance extends Command {
     this.leftWheelPowerPIDController = new PIDController(0.075, 0.01, 0); 
     this.rightWheelPowerPIDController = new PIDController(0.075, 0.01, 0); 
     this.gyroPIDController = new PIDController(0.005, 0, 0); 
+
+    this.maxDriveSpeed = maxSpeed; 
     // this.leftWheelPowerPIDController = new PIDController(0.1, 0, 0); 
     // this.rightWheelPowerPIDController = new PIDController(0.1, 0, 0); 
 
@@ -70,24 +74,24 @@ public class autoDriveForwardSetDistance extends Command {
     double rightWheelOutput = rightWheelPowerPIDController.calculate(DRIVE_SUBSYSTEM.rightEncoderToInches(), distanceInInches); 
     double gyroSpeed = gyroPIDController.calculate(DRIVE_SUBSYSTEM.getYaw(), gryoTarget); 
 
-    if(leftWheelOutput > 0.75){
-      leftWheelOutput = 0.75; 
+    if(leftWheelOutput > maxDriveSpeed){
+      leftWheelOutput = maxDriveSpeed; 
     }
 
-    else if(leftWheelOutput < -0.75){
-      leftWheelOutput = -0.75; 
+    else if(leftWheelOutput < -maxDriveSpeed){
+      leftWheelOutput = -maxDriveSpeed; 
     }
 
     else{
       leftWheelOutput = leftWheelOutput;  
     }
 
-    if(rightWheelOutput > 0.75){
-      rightWheelOutput = 0.75;
+    if(rightWheelOutput > maxDriveSpeed){
+      rightWheelOutput = maxDriveSpeed;
     }
 
-    else if(rightWheelOutput < -0.75){
-      rightWheelOutput = -0.75;
+    else if(rightWheelOutput < -maxDriveSpeed){
+      rightWheelOutput = -maxDriveSpeed;
     }
 
     else{

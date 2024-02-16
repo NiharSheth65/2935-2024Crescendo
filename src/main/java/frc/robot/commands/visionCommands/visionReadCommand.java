@@ -2,40 +2,43 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.intakeCommands;
+package frc.robot.commands.visionCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.VisionSubsystem;
 
-public class IntakeCommand extends Command {
-  /** Creates a new IntakeCommand. */
+public class visionReadCommand extends Command {
 
-  private IntakeSubsystem INTAKE_SUBSYSTEM; 
-  
-  double intakeSpeed; 
+  private VisionSubsystem vision; 
 
-  public IntakeCommand(IntakeSubsystem intake, double speed) {
+  /** Creates a new visionReadCommand. */
+  public visionReadCommand(VisionSubsystem vision) {
     // Use addRequirements() here to declare subsystem dependencies.
-    this.INTAKE_SUBSYSTEM = intake; 
-    this.intakeSpeed = speed;
-    addRequirements(INTAKE_SUBSYSTEM);
+    this.vision = vision; 
+    addRequirements(vision);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    // vision.setLED(0);
+    vision.setPipeline(0);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    INTAKE_SUBSYSTEM.setIntake(intakeSpeed, intakeSpeed);
+
+    double tx = vision.tx();
+    double ty = vision.ty();
+    double ta = vision.ta();
+    double tv = vision.tv();
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    INTAKE_SUBSYSTEM.stop();
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
