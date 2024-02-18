@@ -40,7 +40,7 @@ public class visionDriveCommand extends Command {
   double driveSetPoint; 
 
   /** Creates a new visionDriveCommand. */
-  public visionDriveCommand(DriveSubsystem drive, VisionSubsystem vision, boolean cancel, int pipelineNumber, int setPoint) {
+  public visionDriveCommand(DriveSubsystem drive, VisionSubsystem vision, boolean cancel, int pipelineNumber, double setPoint) {
     // Use addRequirements() here to declare subsystem dependencies.
     
     this.VISION_SUBSYSTEM = vision; 
@@ -52,7 +52,7 @@ public class visionDriveCommand extends Command {
       dKi = 0; 
       dKd = 0; 
 
-      tKp = 0.030; 
+      tKp = 0.015; 
       tKi = 0; 
       tKd = 0; 
     }

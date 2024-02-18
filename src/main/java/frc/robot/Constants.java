@@ -63,7 +63,11 @@ public final class Constants {
     
     public static final double inchToRev = (8.45/12.56); 
     public static final double revToInch = (12.56/8.45); 
-  
+
+    public static final int rightDirection = 0; 
+    public static final int leftDirection = 1; 
+    
+    public static final double autoDriveForwardAndIntakeDistance = VisionConstants.desiredApproachDistance + 3; 
   }
 
   public static class ShooterConstants{
@@ -124,6 +128,18 @@ public final class Constants {
     public static final double outtakeSpeed = -0.60; 
   }
 
+  public static class VisionConstants{
+    public static final double limlightLensHeight = 8.5; 
+    public static final double shooterAprilTagHeight = 16.5; 
+    public static final double limelightMountAngle = 20; 
+
+    public static final double roughAlignmentTolerance = 0.5; 
+    public static final double fineAlighnmentTolerance = 0.25; 
+
+    public static final double desiredApproachDistance = 27; 
+  }
+
+
   public static class WristConstants{
     public static final int wristMotorId = 8; 
 
@@ -139,15 +155,6 @@ public final class Constants {
     public static final double wristfeedShooterPosition = 0; 
     public static final double wristIntakePosition = 40; 
   }
-
-  public static class VisionConstants{
-    private static final double limlightLensHeight = 8.5; 
-    private static final double shooterAprilTagHeight = 16.5; 
-    private static final double limelightMountAngle = 20; 
-  }
-
-
-  
 
 
 }

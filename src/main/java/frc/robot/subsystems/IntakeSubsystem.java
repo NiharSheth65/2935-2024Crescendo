@@ -28,8 +28,8 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeLeftMotor.restoreFactoryDefaults(); 
     intakeRightMotor.restoreFactoryDefaults(); 
 
-    intakeLeftMotor.setInverted(false);
-    intakeRightMotor.setInverted(true);
+    intakeLeftMotor.setInverted(true);
+    intakeRightMotor.setInverted(false);
 
     intakeEncoderLeft.setPosition(0);
     intakeEncoderRight.setPosition(0);  
@@ -41,6 +41,8 @@ public class IntakeSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
   
     SmartDashboard.putNumber("intake velocity", intakeLeftVelocity()); 
+    SmartDashboard.putNumber("right intake current", intakeRightCurrent()); 
+    SmartDashboard.putNumber("left intake current", intakeLeftCurrent()); 
   }
 
 
@@ -75,6 +77,13 @@ public class IntakeSubsystem extends SubsystemBase {
     return intakeEncoderRight.getVelocity(); 
   }
 
+  public double intakeRightCurrent(){
+    return intakeRightMotor.getOutputCurrent(); 
+  }
+
+  public double intakeLeftCurrent(){
+    return intakeLeftMotor.getOutputCurrent(); 
+  }
   // public double intakeRightCurrent(){
   //   return intakeEncoderRight.getC
   // }

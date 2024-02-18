@@ -7,6 +7,7 @@ package frc.robot.commands.visionCommands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.autoCommands.threeGPAuto;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -33,15 +34,24 @@ public class visionTurnCommand extends Command {
 
   int targetToTrack; 
 
+  double alignmentTolerance; 
+
   /** Creates a new visionTurnCommand. */
-  public visionTurnCommand(DriveSubsystem drive, VisionSubsystem vision, int pipeline, boolean turn) {
+  public visionTurnCommand(DriveSubsystem drive, VisionSubsystem vision, int pipeline, boolean turn, double tolerance) {
     
     this.DRIVE_SUBSYSTEM = drive; 
     this.VISION_SUBSYSTEM = vision; 
+
+    this.visionPID = new PIDController(kp, ki, kd); 
+    this.turnBool = turn; 
+    this.setPipelineNumber = pipeline; 
+    this.alignmentTolerance = tolerance;
+
+
     // Use addRequirements() here to declare subsystem dependencies.
     
     if(pipeline == 0){
-      kp = 0.0175; 
+      kp = 0.02; 
       ki = 0.025; 
       kd = 0;   
     }
@@ -52,10 +62,6 @@ public class visionTurnCommand extends Command {
       kd = 0;
     }
 
-
-    this.visionPID = new PIDController(kp, ki, kd); 
-    this.turnBool = turn; 
-    this.setPipelineNumber = pipeline; 
 
     addRequirements(DRIVE_SUBSYSTEM);
     addRequirements(VISION_SUBSYSTEM);
@@ -146,7 +152,7 @@ public class visionTurnCommand extends Command {
       return true; 
     }
     
-    else if(Math.abs(error) < 0.25 && tvMissedCoutner == 0){
+    else if(Math.abs(error) < alignmentTolerance && tvMissedCoutner == 0){
       return true; 
     }
     
