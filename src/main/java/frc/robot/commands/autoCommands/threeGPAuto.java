@@ -5,6 +5,9 @@
 package frc.robot.commands.autoCommands;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.autoCommands.autoTools.autoDelayCommand;
+import frc.robot.commands.autoCommands.autoTools.autoDriveForwardSetDistance;
+import frc.robot.commands.autoCommands.autoTools.autoTurnOnHeadingCommand;
 import frc.robot.subsystems.DriveSubsystem;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more

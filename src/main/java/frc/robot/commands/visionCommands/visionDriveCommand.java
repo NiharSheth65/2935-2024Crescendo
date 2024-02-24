@@ -40,7 +40,7 @@ public class visionDriveCommand extends Command {
   double driveSetPoint; 
 
   /** Creates a new visionDriveCommand. */
-  public visionDriveCommand(DriveSubsystem drive, VisionSubsystem vision, boolean cancel, int pipelineNumber, int setPoint) {
+  public visionDriveCommand(DriveSubsystem drive, VisionSubsystem vision, boolean cancel, int pipelineNumber, double setPoint) {
     // Use addRequirements() here to declare subsystem dependencies.
     
     this.VISION_SUBSYSTEM = vision; 
@@ -48,11 +48,11 @@ public class visionDriveCommand extends Command {
     this.driveSetPoint = setPoint; 
 
     if(pipelineNumber == 0){
-      dKp = 0.042; 
+      dKp = 0.05; 
       dKi = 0; 
       dKd = 0; 
 
-      tKp = 0.030; 
+      tKp = 0.02; 
       tKi = 0; 
       tKd = 0; 
     }
@@ -95,9 +95,9 @@ public class visionDriveCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double limelightLensHeight = 19; 
+    double limelightLensHeight = 18; 
     double goalHeight; 
-    double limelightMountAngle = -17; 
+    double limelightMountAngle = -20; 
 
     if(setPipelineNumber == 0){
       goalHeight = 0; 
@@ -126,12 +126,12 @@ public class visionDriveCommand extends Command {
     double driveSpeed = driveVisionPID.calculate(distanceFromLimelightToGoalInches, driveSetPoint); 
     double turnSpeed = turnVisionPID.calculate(DRIVE_SUBSYSTEM.getYaw(), gyroTargetPosition); 
 
-    if(driveSpeed > 0.75){
-      driveSpeed = 0.75; 
+    if(driveSpeed > 1.00){
+      driveSpeed = 1.00; 
     }
 
-    else if(driveSpeed < -0.75){
-      driveSpeed = -0.75; 
+    else if(driveSpeed < -1.00){
+      driveSpeed = -1.00; 
     }
 
     // driveSubsystem.tankMode(turnSpeed, -1*turnSpeed);

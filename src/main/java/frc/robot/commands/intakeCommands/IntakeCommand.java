@@ -4,6 +4,7 @@
 
 package frc.robot.commands.intakeCommands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsystem;
 
@@ -14,6 +15,10 @@ public class IntakeCommand extends Command {
   
   double intakeSpeed; 
 
+  double initTime; 
+
+  boolean endCommand; 
+
   public IntakeCommand(IntakeSubsystem intake, double speed) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.INTAKE_SUBSYSTEM = intake; 
@@ -23,11 +28,30 @@ public class IntakeCommand extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    initTime = System.currentTimeMillis(); 
+    endCommand = false; 
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+
+
+    if(INTAKE_SUBSYSTEM.hasIntaked() == true && Math.abs(System.currentTimeMillis() - initTime) < 500){
+      endCommand = false; 
+    }
+
+    else if(INTAKE_SUBSYSTEM.hasIntaked() == true && Math.abs(System.currentTimeMillis() - initTime) > 500){
+      endCommand = true;  
+    }
+
+    else{
+      endCommand = false; 
+    }
+
+    SmartDashboard.putBoolean("end command", endCommand); 
+
     INTAKE_SUBSYSTEM.setIntake(intakeSpeed, intakeSpeed);
   }
 
@@ -40,6 +64,14 @@ public class IntakeCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    
+    if(endCommand == true){
+      return true; 
+    }
+
+    else{
+      return false; 
+    }
+    
   }
 }

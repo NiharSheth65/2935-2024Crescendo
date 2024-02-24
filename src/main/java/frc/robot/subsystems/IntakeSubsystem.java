@@ -17,22 +17,17 @@ import frc.robot.Constants.IntakeConstants;
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
 
-  private CANSparkMax intakeLeftMotor = new CANSparkMax(IntakeConstants.intakeLeftMotorId, MotorType.kBrushless); 
-  private CANSparkMax intakeRightMotor = new CANSparkMax(IntakeConstants.intakeRightMotorId, MotorType.kBrushless); 
+  private CANSparkMax intakeMotor = new CANSparkMax(IntakeConstants.intakeMotorId, MotorType.kBrushless); 
 
-  private RelativeEncoder intakeEncoderLeft = intakeLeftMotor.getEncoder(); 
-  private RelativeEncoder intakeEncoderRight = intakeRightMotor.getEncoder(); 
-  
+  private RelativeEncoder intakeEncoder = intakeMotor.getEncoder(); 
+
   public IntakeSubsystem() {
     
-    intakeLeftMotor.restoreFactoryDefaults(); 
-    intakeRightMotor.restoreFactoryDefaults(); 
+    intakeMotor.restoreFactoryDefaults(); 
 
-    intakeLeftMotor.setInverted(false);
-    intakeRightMotor.setInverted(true);
+    intakeMotor.setInverted(true);
 
-    intakeEncoderLeft.setPosition(0);
-    intakeEncoderRight.setPosition(0);  
+    intakeEncoder.setPosition(0);
 
   }
 
@@ -40,78 +35,79 @@ public class IntakeSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   
-    SmartDashboard.putNumber("intake velocity", intakeLeftVelocity()); 
+    SmartDashboard.putNumber("intake velocity", intakeMotorVelocity()); 
+    SmartDashboard.putNumber("intake current", intakeMotorCurrent()); 
+    SmartDashboard.putBoolean("intaked", hasIntaked()); 
   }
 
 
   public void setBrakeMode(){
-    intakeLeftMotor.setIdleMode(IdleMode.kBrake); 
-    intakeRightMotor.setIdleMode(IdleMode.kBrake); 
+    intakeMotor.setIdleMode(IdleMode.kBrake); 
   }
 
   public void setCoastMode(){
-    intakeLeftMotor.setIdleMode(IdleMode.kCoast); 
-    intakeRightMotor.setIdleMode(IdleMode.kCoast); 
+    intakeMotor.setIdleMode(IdleMode.kCoast); 
   }
 
   public void resetEncoders(){
-    intakeEncoderLeft.setPosition(0);  
-    intakeEncoderRight.setPosition(0); 
+    intakeEncoder.setPosition(0);  
   }
 
-  public double intakeLeftPosition(){
-    return intakeEncoderLeft.getPosition(); 
+  public double intakeMotorPosition(){
+    return intakeEncoder.getPosition(); 
   }
 
-  public double intakeLeftVelocity(){
-    return intakeEncoderLeft.getVelocity(); 
+  public double intakeMotorVelocity(){
+    return intakeEncoder.getVelocity(); 
   }
 
-  public double intakeRightPosition(){
-    return intakeEncoderRight.getPosition(); 
+  public double intakeMotorCurrent(){
+    return intakeMotor.getOutputCurrent(); 
   }
-
-  public double intakeRightVelocity(){
-    return intakeEncoderRight.getVelocity(); 
-  }
-
   // public double intakeRightCurrent(){
   //   return intakeEncoderRight.getC
   // }
 
+
+  public boolean hasIntaked(){
+    
+    if(intakeMotorCurrent() > 15){
+      return true; 
+    }
+
+    else{
+      return false; 
+    }
+  }
+
   public void setLeftIntakePIDF(double p, double i, double d, double f){
-    intakeLeftMotor.getPIDController().setP(p); 
-    intakeLeftMotor.getPIDController().setI(i); 
-    intakeLeftMotor.getPIDController().setD(d); 
-    intakeLeftMotor.getPIDController().setFF(f); 
+    intakeMotor.getPIDController().setP(p); 
+    intakeMotor.getPIDController().setI(i); 
+    intakeMotor.getPIDController().setD(d); 
+    intakeMotor.getPIDController().setFF(f); 
   }
 
   public void intakeOutPutConstraints(double min, double max){
-    intakeLeftMotor.getPIDController().setOutputRange(min, max); 
+    intakeMotor.getPIDController().setOutputRange(min, max); 
   }
 
   public void setIntakeVelocityMode(){
-    intakeLeftMotor.getPIDController().setReference(0, ControlType.kVelocity); 
-    intakeRightMotor.getPIDController().setReference(0, ControlType.kVelocity); 
+    intakeMotor.getPIDController().setReference(0, ControlType.kVelocity); 
   }
 
   public void setIntakePowerMode(){
-    intakeLeftMotor.getPIDController().setReference(0, ControlType.kVoltage); 
-    intakeRightMotor.getPIDController().setReference(0, ControlType.kVoltage); 
+    intakeMotor.getPIDController().setReference(0, ControlType.kVoltage); 
   }
 
   public void setVelocity(double intakeVelocity){
-    intakeLeftMotor.getPIDController().setReference(intakeVelocity, ControlType.kVelocity); 
-    intakeRightMotor.getPIDController().setReference(intakeVelocity, ControlType.kVelocity); 
+    intakeMotor.getPIDController().setReference(intakeVelocity, ControlType.kVelocity); 
   }
 
   public void setIntake(double leftIntakeSpeed, double rightIntakeSpeed){
-    intakeLeftMotor.set(leftIntakeSpeed);
-    intakeRightMotor.set(rightIntakeSpeed);
+    intakeMotor.set(leftIntakeSpeed);
   }
 
   public void stop(){
-    intakeLeftMotor.stopMotor();
-    intakeRightMotor.stopMotor(); 
+    intakeMotor.stopMotor();
   }
 }

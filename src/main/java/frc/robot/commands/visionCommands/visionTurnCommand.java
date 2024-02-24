@@ -33,19 +33,21 @@ public class visionTurnCommand extends Command {
 
   int targetToTrack; 
 
+  double turnTolerance; 
   /** Creates a new visionTurnCommand. */
-  public visionTurnCommand(DriveSubsystem drive, VisionSubsystem vision, int pipeline, boolean turn) {
+  public visionTurnCommand(DriveSubsystem drive, VisionSubsystem vision, int pipeline, boolean turn, double tolerance) {
     
     this.DRIVE_SUBSYSTEM = drive; 
     this.VISION_SUBSYSTEM = vision; 
     // Use addRequirements() here to declare subsystem dependencies.
     
     if(pipeline == 0){
-      kp = 0.0175; 
-      ki = 0.025; 
+      kp = 0.035; 
+      ki = 0.02; 
       kd = 0;   
     }
 
+    
     else if(pipeline == 1){
       kp = 0.03; 
       ki = 0.025; 
@@ -55,7 +57,8 @@ public class visionTurnCommand extends Command {
 
     this.visionPID = new PIDController(kp, ki, kd); 
     this.turnBool = turn; 
-    this.setPipelineNumber = pipeline; 
+    this.setPipelineNumber = pipeline;
+    this.turnTolerance = tolerance;  
 
     addRequirements(DRIVE_SUBSYSTEM);
     addRequirements(VISION_SUBSYSTEM);
@@ -146,7 +149,7 @@ public class visionTurnCommand extends Command {
       return true; 
     }
     
-    else if(Math.abs(error) < 0.25 && tvMissedCoutner == 0){
+    else if(Math.abs(error) < turnTolerance && tvMissedCoutner == 0){
       return true; 
     }
     

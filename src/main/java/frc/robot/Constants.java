@@ -51,7 +51,7 @@ public final class Constants {
     public static final double driveSlew = 5; 
     public static final double turnSlew = 2;
     
-    public static final double driveSlowSpeed = 0.5; 
+    public static final double driveSlowSpeed = 0.90; 
     public static final double driveFastSpeed = 1; 
 
     public static final double turnSpeed = 0.5; 
@@ -63,7 +63,11 @@ public final class Constants {
     
     public static final double inchToRev = (8.45/12.56); 
     public static final double revToInch = (12.56/8.45); 
-  
+
+    public static final int rightDirection = 0; 
+    public static final int leftDirection = 1; 
+    
+    public static final double autoDriveForwardAndIntakeDistance = VisionConstants.desiredApproachDistance + 3; 
   }
 
   public static class ShooterConstants{
@@ -96,8 +100,13 @@ public final class Constants {
     // auto line - 37, 55
     // spike marks - 
 
-    public static final double speakerTopMotorSpeed = 5700 * 0.55; 
-    public static final double speakerBottomMotorSpeed = 5700 * 0.70; 
+    public static final double speakerTopMotorSpeed = 5700*0.9; 
+    public static final double speakerBottomMotorSpeed = 5700*0.9; 
+
+    //     public static final double speakerTopMotorSpeed = 5700 * 0.55; 
+    // public static final double speakerBottomMotorSpeed = 5700 * 0.70; 
+
+
 
     public static final double autoCentreTopMotorSpeed = 5700 * 0.50; 
     public static final double autoCentreBottomMotorSpeed = 5700 * 0.50; 
@@ -114,9 +123,8 @@ public final class Constants {
   }
 
   public static class IntakeConstants{
-    public static final int intakeLeftMotorId = 7;
-    public static final int intakeRightMotorId = 9;  
-    public static final double intakeSpeed = 0.60; 
+    public static final int intakeMotorId = 8;
+    public static final double intakeSpeed = 0.80; 
     public static final double intakeVelocity = 0.10 * 11000; 
     public static final double outtakeVelocity = -0.10 * 11000; 
     public static final double intakeStopSpeed = 0; 
@@ -124,8 +132,21 @@ public final class Constants {
     public static final double outtakeSpeed = -0.60; 
   }
 
+  public static class VisionConstants{
+    public static final double limlightLensHeight = 7.5; 
+    public static final double shooterAprilTagHeight = 16.5; 
+    public static final double limelightMountAngle = 20; 
+
+    public static final double roughAlignmentTolerance = 2; 
+    public static final double fineAlighnmentTolerance = 2.5; 
+
+    public static final double desiredApproachDistance = 30; 
+  }
+
+
   public static class WristConstants{
-    public static final int wristMotorId = 8; 
+    public static final int wristMotorId = 9; 
+
 
     public static final double wristKP = 0.05; 
     public static final double wristKI = 0.0; 
@@ -140,14 +161,11 @@ public final class Constants {
     public static final double wristIntakePosition = 40; 
   }
 
-  public static class VisionConstants{
-    private static final double limlightLensHeight = 8.5; 
-    private static final double shooterAprilTagHeight = 16.5; 
-    private static final double limelightMountAngle = 20; 
+  public static class conveyerConstants{
+      public static final int conveyerMotorId = 7;
+      public static final double conveyerInSpeed = 0.80; 
+      public static final double conveyerOutSpeed = -0.60; 
   }
-
-
-  
 
 
 }
