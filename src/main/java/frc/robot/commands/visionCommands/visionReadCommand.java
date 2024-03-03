@@ -23,7 +23,7 @@ public class visionReadCommand extends Command {
   @Override
   public void initialize() {
     // vision.setLED(0);
-    vision.setPipeline(0);
+    vision.setPipeline(1);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

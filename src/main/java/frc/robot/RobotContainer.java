@@ -11,8 +11,8 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.Constants.conveyerConstants;
+import frc.robot.Constants.photonVisionConstants;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.autoCommands.twoPieceAuto;
 import frc.robot.commands.autoCommands.autoTools.autoDriveForwardSetDistance;
 import frc.robot.commands.autoCommands.autoTools.autoTurnForTime;
 import frc.robot.commands.autoCommands.autoTools.autoTurnOnHeadingCommand;
@@ -26,24 +26,30 @@ import frc.robot.commands.autoCommands.blueAutos.blueTwoGamePieceAutos.blueStage
 import frc.robot.commands.conveyerCommands.ConveyerCommand;
 import frc.robot.commands.conveyerCommands.ConveyerTimeCommand;
 import frc.robot.commands.drivetrainCommands.DefaultDriveCommand;
+import frc.robot.commands.drivetrainCommands.DriveTurnCommand;
 import frc.robot.commands.drivetrainCommands.DriveVelocityControl;
 import frc.robot.commands.intakeCommands.IntakeCommand;
 import frc.robot.commands.intakeCommands.IntakeVelocityCommand;
 import frc.robot.commands.intakeCommands.intakeTimeCommand;
+import frc.robot.commands.ledCommands.LedCommand;
+import frc.robot.commands.photonvisionCommands.photonVisionDriveAndAlignCommand;
+import frc.robot.commands.photonvisionCommands.photonVisionDriveCommand;
+// import frc.robot.commands.photonvisionCommands.photonVisionDriveAndAlignCommand;
 import frc.robot.commands.shooterCommands.shootSetSpeedCommand;
 import frc.robot.commands.shooterCommands.shooterTimeCommand;
 import frc.robot.commands.shooterCommands.shooterVelocityCommand;
 import frc.robot.commands.visionCommands.visionDriveCommand;
 import frc.robot.commands.visionCommands.visionReadCommand;
 import frc.robot.commands.visionCommands.visionTurnCommand;
-import frc.robot.commands.wristCommands.wristSetPosition;
 import frc.robot.subsystems.ConveyerSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LightSubsystem;
+import frc.robot.subsystems.PhotonvisionSubsystem;
+// import frc.robot.subsystems.PhotonvisionSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.WristSubsystem;
 
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 
@@ -70,13 +76,15 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
+
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final DriveSubsystem m_DriveSubsystem = new DriveSubsystem();
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(); 
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
   private final ConveyerSubsystem m_ConveyerSubsystem = new ConveyerSubsystem();  
-  private final WristSubsystem m_WristSubsystem = new WristSubsystem(); 
   private final VisionSubsystem m_VisionSubsystem = new VisionSubsystem(); 
+  private final PhotonvisionSubsystem m_PhotonvisionSubsystem = new PhotonvisionSubsystem(); 
+  private final LightSubsystem m_LightSubsystem = new LightSubsystem(); 
 
   private final Joystick joystick = new Joystick(OperatorConstants.primaryControllerPort); 
   private final Joystick joystickSecondary = new Joystick(OperatorConstants.secondaryControllerPort); 
@@ -120,7 +128,7 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
 
-    CameraServer.startAutomaticCapture(); 
+    // CameraServer.startAutomaticCapture(); 
 
     m_autoChooser.setDefaultOption("BLUE - TWO PIECE CENTRE", m_blueCentreTwoPieceAuto);
     m_autoChooser.addOption("BLUE - TWO PIECE STAGE", m_blueStageSideTwoPieceAuto);
@@ -148,18 +156,14 @@ public class RobotContainer {
   private void defaultCommands(){
     m_DriveSubsystem.setDefaultCommand(new DefaultDriveCommand(m_DriveSubsystem, joystick));
     m_VisionSubsystem.setDefaultCommand(new visionReadCommand(m_VisionSubsystem));
+    m_LightSubsystem.setDefaultCommand(new LedCommand(m_LightSubsystem, m_IntakeSubsystem));
+    
     // m_WristSubsystem.setDefaultCommand(new wristSetPosition(m_WristSubsystem, 0));
-  
+    // m_IntakeSubsystem.setDefaultCommand(new IntakeCommand(m_IntakeSubsystem, 0.5));
   }
   
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-
-
-    BUTTON_B_PRIMARY.toggleOnTrue(
-      new autoTurnForTime(m_DriveSubsystem, 500, 0)
-    ); 
-
 
 
     BUTTON_Y_PRIMARY.onTrue(
@@ -167,9 +171,9 @@ public class RobotContainer {
 
       new ParallelDeadlineGroup(
           new SequentialCommandGroup(
-            new visionTurnCommand(m_DriveSubsystem, m_VisionSubsystem, 0, false, VisionConstants.roughAlignmentTolerance)
-            .andThen(new visionDriveCommand(m_DriveSubsystem, m_VisionSubsystem, false, 0, VisionConstants.desiredApproachDistance))
-            .andThen(new visionTurnCommand(m_DriveSubsystem, m_VisionSubsystem, 0, false, VisionConstants.fineAlighnmentTolerance))
+            new visionTurnCommand(m_DriveSubsystem, m_VisionSubsystem, 1, false, VisionConstants.roughAlignmentTolerance)
+            .andThen(new visionDriveCommand(m_DriveSubsystem, m_VisionSubsystem, false, 1, VisionConstants.desiredApproachDistance))
+            .andThen(new visionTurnCommand(m_DriveSubsystem, m_VisionSubsystem, 1, false, VisionConstants.fineAlighnmentTolerance))
           ), 
 
           new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed)
@@ -177,12 +181,12 @@ public class RobotContainer {
       )
 
 
-      .andThen(
-        new ParallelDeadlineGroup(
-          new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed),
-          new autoDriveForwardSetDistance(m_DriveSubsystem, 15, 0.5)
-        )
-      )
+      // .andThen(
+      //   new ParallelDeadlineGroup(
+      //     new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed),
+      //     new autoDriveForwardSetDistance(m_DriveSubsystem, 15, 0.5)
+      //   )
+      // )
 
       .andThen(
           new ParallelCommandGroup(
@@ -197,8 +201,8 @@ public class RobotContainer {
       
 
     BUTTON_Y_PRIMARY.onFalse(
-      new visionTurnCommand(m_DriveSubsystem, m_VisionSubsystem, 0, true, VisionConstants.roughAlignmentTolerance)
-      .andThen(new visionDriveCommand(m_DriveSubsystem, m_VisionSubsystem, true, 0,  27))
+      new visionTurnCommand(m_DriveSubsystem, m_VisionSubsystem, 1, true, VisionConstants.roughAlignmentTolerance)
+      .andThen(new visionDriveCommand(m_DriveSubsystem, m_VisionSubsystem, true, 1,  27))
     ); 
 
     
@@ -209,69 +213,54 @@ public class RobotContainer {
     controllerSecondary.axisGreaterThan(OperatorConstants.leftTriggerAxis, OperatorConstants.triggerThreshold).toggleOnTrue(new shooterVelocityCommand(m_ShooterSubsystem, ShooterConstants.ampTopMotorSpeed, ShooterConstants.ampBottomMotorSpeed)); 
     
     BUTTON_Y_SECONDARY.onTrue(
-      new ParallelCommandGroup(
-        new wristSetPosition(m_WristSubsystem, WristConstants.wristIntakePosition)
-        // new IntakeCommand(m_IntakeSubsystem,IntakeConstants.outtakeSpeed * 0.7)
-      )   
+      new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed)
     ); 
 
     BUTTON_Y_SECONDARY.onFalse(
-      new ParallelCommandGroup(
-        new wristSetPosition(m_WristSubsystem, WristConstants.wristfeedShooterPosition)
-        // new IntakeCommand(m_IntakeSubsystem, 0)
-      )
+      new IntakeCommand(m_IntakeSubsystem, 0)
     ); 
     
 
     BUTTON_RB_SECONDARY.onTrue(
-      // new ParallelCommandGroup(
-      //        new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed)
-      //       //  .alongWith(new ConveyerCommand(m_ConveyerSubsystem, conveyerConstants.conveyerInSpeed))
-      // )
 
-      new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed)
-      .andThen( 
-        new ParallelRaceGroup(
-              new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed)
-               .alongWith(new ConveyerTimeCommand(m_ConveyerSubsystem, conveyerConstants.conveyerInSpeed, 500))
-        )
+      new ParallelCommandGroup(
+        new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed), 
+        new ConveyerCommand(m_ConveyerSubsystem, conveyerConstants.conveyerInSpeed)
       )
+
     ); 
 
 
 
     BUTTON_RB_SECONDARY.onFalse(
-       new ParallelCommandGroup(
-             new IntakeCommand(m_IntakeSubsystem, 0)
-             .alongWith(new ConveyerCommand(m_ConveyerSubsystem, 0))
-       )
+ 
+      new ParallelCommandGroup(
+        new IntakeCommand(m_IntakeSubsystem, 0), 
+        new ConveyerCommand(m_ConveyerSubsystem, 0)
+      )
+
     );
 
     BUTTON_LB_SECONDARY.onTrue(
 
 
-       new ParallelCommandGroup(
-          new IntakeCommand(m_IntakeSubsystem, IntakeConstants.outtakeSpeed)
-          .alongWith(new ConveyerCommand(m_ConveyerSubsystem, conveyerConstants.conveyerOutSpeed))
-       )
+      new ParallelCommandGroup(
+        new IntakeCommand(m_IntakeSubsystem, IntakeConstants.outtakeSpeed), 
+        new ConveyerCommand(m_ConveyerSubsystem, conveyerConstants.conveyerOutSpeed)
+      )
     ); 
 
     BUTTON_LB_SECONDARY.onFalse(
+      // new ParallelCommandGroup(
+      //   new IntakeCommand(m_IntakeSubsystem, 0)
+      //   .alongWith(new ConveyerCommand(m_ConveyerSubsystem, 0))
+      //  )
+
       new ParallelCommandGroup(
-        new IntakeCommand(m_IntakeSubsystem, 0)
-        .alongWith(new ConveyerCommand(m_ConveyerSubsystem, 0))
-       )
-    ); 
-
-
-    BUTTON_Y_SECONDARY.onTrue(
-      new ConveyerCommand(m_ConveyerSubsystem, conveyerConstants.conveyerInSpeed)
-    ); 
-
-    BUTTON_Y_SECONDARY.onFalse(
-      new ConveyerCommand(m_ConveyerSubsystem, 0)
-    ); 
-    
+        new IntakeCommand(m_IntakeSubsystem, 0), 
+        new ConveyerCommand(m_ConveyerSubsystem, 0)
+      )
+    );     
 
     BUTTON_B_SECONDARY.onTrue(
       new shooterVelocityCommand(m_ShooterSubsystem, -ShooterConstants.ampBottomMotorSpeed, -ShooterConstants.ampBottomMotorSpeed)
@@ -281,6 +270,30 @@ public class RobotContainer {
       new shooterVelocityCommand(m_ShooterSubsystem, 0, 0)
     ); 
 
+    BUTTON_B_PRIMARY.onTrue(
+      new photonVisionDriveAndAlignCommand(m_PhotonvisionSubsystem, m_DriveSubsystem, photonVisionConstants.ampDistance, 0, false) 
+    ); 
+
+    
+    BUTTON_B_PRIMARY.onFalse(
+      new photonVisionDriveAndAlignCommand(m_PhotonvisionSubsystem, m_DriveSubsystem, 0, 0, true) 
+    ); 
+
+    BUTTON_A_PRIMARY.onTrue(
+      new photonVisionDriveCommand(m_PhotonvisionSubsystem, m_DriveSubsystem, 0, 0, false)
+    ); 
+
+    
+    BUTTON_A_PRIMARY.onFalse(
+      new photonVisionDriveCommand(m_PhotonvisionSubsystem, m_DriveSubsystem, 0, 0, true)
+    ); 
+
+
+    controllerPrimary.axisGreaterThan(OperatorConstants.rightTriggerAxis, OperatorConstants.triggerThreshold).toggleOnFalse(new DriveTurnCommand(m_DriveSubsystem, DriveConstants.rightDirection, true)); 
+    controllerPrimary.axisGreaterThan(OperatorConstants.rightTriggerAxis, OperatorConstants.triggerThreshold).toggleOnTrue(new DriveTurnCommand(m_DriveSubsystem, DriveConstants.rightDirection, false)); 
+
+    controllerPrimary.axisGreaterThan(OperatorConstants.leftTriggerAxis, OperatorConstants.triggerThreshold).toggleOnFalse(new DriveTurnCommand(m_DriveSubsystem, DriveConstants.leftDirection, true)); 
+    controllerPrimary.axisGreaterThan(OperatorConstants.leftTriggerAxis, OperatorConstants.triggerThreshold).toggleOnTrue(new DriveTurnCommand(m_DriveSubsystem, DriveConstants.leftDirection, false)); 
   }
 
   /**
@@ -292,13 +305,11 @@ public class RobotContainer {
   public void resetEncoders(){
     m_DriveSubsystem.resetEncoders();
     m_ShooterSubsystem.resetEncoders(); 
-    m_WristSubsystem.resetEncoders();
   }
 
   public void autonomousInit(){
     m_DriveSubsystem.resetEncoders();
     m_DriveSubsystem.zeroHeading();
-    m_WristSubsystem.resetEncoders();
   }
 
   public Command getAutonomousCommand() {

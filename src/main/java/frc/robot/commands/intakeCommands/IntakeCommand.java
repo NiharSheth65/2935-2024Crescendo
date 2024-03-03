@@ -65,13 +65,15 @@ public class IntakeCommand extends Command {
   @Override
   public boolean isFinished() {
     
-    if(endCommand == true){
-      return true; 
-    }
+    // if(endCommand == true){
+    //   return true; 
+    // }
 
-    else{
-      return false; 
-    }
+    // else{
+    //   return false; 
+    // }
+
+    return false; 
     
   }
 }

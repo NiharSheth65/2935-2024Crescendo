@@ -71,7 +71,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public boolean hasIntaked(){
     
-    if(intakeMotorCurrent() > 15){
+    if(intakeMotorCurrent() > 1){
       return true; 
     }
 

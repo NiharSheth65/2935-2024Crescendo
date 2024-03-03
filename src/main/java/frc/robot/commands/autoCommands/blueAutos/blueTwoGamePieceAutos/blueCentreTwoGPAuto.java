@@ -12,6 +12,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.WristConstants;
+import frc.robot.Constants.autoConstants;
 import frc.robot.Constants.conveyerConstants;
 import frc.robot.commands.autoCommands.autoTools.autoDriveForwardSetDistance;
 import frc.robot.commands.autoCommands.autoTools.autoTurnForTime;
@@ -22,7 +23,6 @@ import frc.robot.commands.intakeCommands.intakeTimeCommand;
 import frc.robot.commands.shooterCommands.shooterTimeCommand;
 import frc.robot.commands.visionCommands.visionDriveCommand;
 import frc.robot.commands.visionCommands.visionTurnCommand;
-import frc.robot.commands.wristCommands.wristSetPosition;
 import frc.robot.subsystems.ConveyerSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -46,9 +46,9 @@ public class blueCentreTwoGPAuto extends SequentialCommandGroup {
       ) 
     
   
-      .andThen(new visionTurnCommand(drive, vision, 0, false, VisionConstants.roughAlignmentTolerance))
-      .andThen(new visionDriveCommand(drive, vision, false, 0, VisionConstants.desiredApproachDistance))
-      .andThen(new visionTurnCommand(drive, vision, 0, false, VisionConstants.roughAlignmentTolerance)), 
+      .andThen(new visionTurnCommand(drive, vision, autoConstants.withLightNotePipeline, false, VisionConstants.roughAlignmentTolerance))
+      .andThen(new visionDriveCommand(drive, vision, false, autoConstants.withLightNotePipeline, VisionConstants.desiredApproachDistance))
+      .andThen(new visionTurnCommand(drive, vision, autoConstants.withLightNotePipeline, false, VisionConstants.roughAlignmentTolerance)), 
 
       new ParallelRaceGroup(    
          new autoDriveForwardSetDistance(drive, 15, 0.5)
