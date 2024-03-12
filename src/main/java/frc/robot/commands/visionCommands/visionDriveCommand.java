@@ -5,8 +5,11 @@
 package frc.robot.commands.visionCommands;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -39,6 +42,12 @@ public class visionDriveCommand extends Command {
 
   double driveSetPoint; 
 
+  double dSlew = DriveConstants.driveSlew; 
+  double tSlew = DriveConstants.turnSlew; 
+
+  SlewRateLimiter drive_Limiter = new SlewRateLimiter(dSlew); 
+  SlewRateLimiter turn_Limiter = new SlewRateLimiter(tSlew); 
+
   /** Creates a new visionDriveCommand. */
   public visionDriveCommand(DriveSubsystem drive, VisionSubsystem vision, boolean cancel, int pipelineNumber, double setPoint) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -58,11 +67,11 @@ public class visionDriveCommand extends Command {
     }
 
     else if(pipelineNumber == 1){
-      dKp = 0.02;
+      dKp = 0.05;
       dKi = 0.0;
       dKd = 0;
 
-      tKp = 0.01; 
+      tKp = 0.02; 
       tKi = 0; 
       tKd = 0; 
     }
@@ -95,15 +104,15 @@ public class visionDriveCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double limelightLensHeight = 18; 
+    double limelightLensHeight = VisionConstants.limlightLensHeight; 
     double goalHeight; 
-    double limelightMountAngle = -20; 
+    double limelightMountAngle = VisionConstants.limelightMountAngle; 
 
     if(setPipelineNumber == 0){
       goalHeight = 0; 
     }
     else if(setPipelineNumber == 1){
-      goalHeight = 22.5; 
+      goalHeight = 0; 
     }else{
       goalHeight = 0; 
     }
@@ -120,31 +129,34 @@ public class visionDriveCommand extends Command {
       tvMissedCounter = 0;  
       distanceFromLimelightToGoalInches = (goalHeight - limelightLensHeight)/Math.tan(angleToGoalRadians); 
       distanceLast = distanceFromLimelightToGoalInches; 
+
+      double driveSpeed = driveVisionPID.calculate(distanceFromLimelightToGoalInches, driveSetPoint); 
+      double turnSpeed = turnVisionPID.calculate(DRIVE_SUBSYSTEM.getYaw(), gyroTargetPosition); 
+
+      if(driveSpeed > 0.50){
+        driveSpeed = 0.50; 
+      }
+
+      else if(driveSpeed < -0.50){
+        driveSpeed = -0.50; 
+      }
+
+      SmartDashboard.putNumber("limelightdistance", distanceFromLimelightToGoalInches); 
+      DRIVE_SUBSYSTEM.setTank(-drive_Limiter.calculate(driveSpeed) - turn_Limiter.calculate(turnSpeed), -drive_Limiter.calculate(driveSpeed) + turn_Limiter.calculate(turnSpeed));
+
     }
     
 
-    double driveSpeed = driveVisionPID.calculate(distanceFromLimelightToGoalInches, driveSetPoint); 
-    double turnSpeed = turnVisionPID.calculate(DRIVE_SUBSYSTEM.getYaw(), gyroTargetPosition); 
 
-    if(driveSpeed > 1.00){
-      driveSpeed = 1.00; 
-    }
-
-    else if(driveSpeed < -1.00){
-      driveSpeed = -1.00; 
-    }
 
     // driveSubsystem.tankMode(turnSpeed, -1*turnSpeed);
-    DRIVE_SUBSYSTEM.setTank(-driveSpeed - turnSpeed, -driveSpeed + turnSpeed);
 
-    SmartDashboard.putNumber("distance to note", distanceFromLimelightToGoalInches); 
-    SmartDashboard.putNumber("vision drive speed", driveSpeed); 
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    DRIVE_SUBSYSTEM.stop();
+    // DRIVE_SUBSYSTEM.stop();
   }
 
   // Returns true when the command should end.

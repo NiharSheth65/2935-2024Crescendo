@@ -5,6 +5,7 @@
 package frc.robot.commands.autoCommands.blueAutos.blueThreeGamePieceAutos;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.DriveConstants;
@@ -16,6 +17,7 @@ import frc.robot.commands.autoCommands.autoTools.autoDriveForwardSetDistance;
 import frc.robot.commands.autoCommands.autoTools.autoTurnForTime;
 import frc.robot.commands.conveyerCommands.ConveyerTimeCommand;
 import frc.robot.commands.intakeCommands.IntakeCommand;
+import frc.robot.commands.intakeCommands.IntakeWithSensorCommand;
 import frc.robot.commands.intakeCommands.intakeTimeCommand;
 import frc.robot.commands.shooterCommands.shooterTimeCommand;
 import frc.robot.commands.visionCommands.visionDriveCommand;
@@ -36,22 +38,33 @@ public class blueStageSideThreeGpAuto extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
 
-    
+
       new ParallelRaceGroup(
           new shooterTimeCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, 1500), 
           new ConveyerTimeCommand(conveyer, conveyerConstants.conveyerInSpeed, 1500), 
           new intakeTimeCommand(intake, 0, 1000, 1000) 
-      ) 
+      ), 
     
-  
-      .andThen(new visionTurnCommand(drive, vision, 0, false, VisionConstants.roughAlignmentTolerance))
-      .andThen(new visionDriveCommand(drive, vision, false, 0, VisionConstants.desiredApproachDistance))
-      .andThen(new visionTurnCommand(drive, vision, 0, false, VisionConstants.roughAlignmentTolerance)), 
+    
+      new ParallelDeadlineGroup(
+            new SequentialCommandGroup(
+              new visionTurnCommand(drive, vision, 1, false, VisionConstants.roughAlignmentTolerance)
+              .andThen(new visionDriveCommand(drive, vision, false, 1, VisionConstants.desiredApproachDistance))
+              .andThen(new visionTurnCommand(drive, vision, 1, false, VisionConstants.fineAlighnmentTolerance))
+            ),
 
-      new ParallelRaceGroup(    
-         new autoDriveForwardSetDistance(drive, 15, 0.5)
-          .alongWith(new IntakeCommand(intake, IntakeConstants.intakeSpeed))
-      ) 
+            new IntakeCommand(intake, IntakeConstants.intakeSpeed)
+
+        )
+
+
+      .andThen(
+        new ParallelDeadlineGroup(
+          new IntakeWithSensorCommand(intake, IntakeConstants.intakeSpeed),
+          new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance, 0.5)
+        )
+      )
+
 
 
       .andThen(
@@ -59,33 +72,127 @@ public class blueStageSideThreeGpAuto extends SequentialCommandGroup {
           new shooterTimeCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, 3000), 
           new intakeTimeCommand(intake, IntakeConstants.intakeSpeed, 1000, 1000), 
           new ConveyerTimeCommand(conveyer, conveyerConstants.conveyerInSpeed, 3000), 
-          new autoDriveForwardSetDistance(drive, -40, 0.60)
+          new autoDriveForwardSetDistance(drive, -60, 0.60)
         ) 
-      )
-
+      ) 
+  
       .andThen(
         new autoTurnForTime(drive, 100, DriveConstants.rightDirection)
+      ), 
+
+      new ParallelRaceGroup(
+          new shooterTimeCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, 1500), 
+          new ConveyerTimeCommand(conveyer, conveyerConstants.conveyerInSpeed, 1500), 
+          new intakeTimeCommand(intake, 0, 1000, 1000) 
+      ), 
+    
+    
+      new ParallelDeadlineGroup(
+            new SequentialCommandGroup(
+              new visionTurnCommand(drive, vision, 1, false, VisionConstants.roughAlignmentTolerance)
+              .andThen(new visionDriveCommand(drive, vision, false, 1, VisionConstants.desiredApproachDistance))
+              .andThen(new visionTurnCommand(drive, vision, 1, false, VisionConstants.fineAlighnmentTolerance))
+            ),
+
+            new IntakeCommand(intake, IntakeConstants.intakeSpeed)
+
+        )
+
+
+      .andThen(
+        new ParallelDeadlineGroup(
+          new IntakeWithSensorCommand(intake, IntakeConstants.intakeSpeed),
+          new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance, 0.5)
+        )
       )
 
-
-      .andThen(new visionTurnCommand(drive, vision, 0, false, VisionConstants.roughAlignmentTolerance))
-      .andThen(new visionDriveCommand(drive, vision, false, 0, VisionConstants.desiredApproachDistance))
-      .andThen(new visionTurnCommand(drive, vision, 0, false, VisionConstants.roughAlignmentTolerance)), 
-
-      new ParallelRaceGroup(    
-         new autoDriveForwardSetDistance(drive, 15, 0.5)
-          .alongWith(new IntakeCommand(intake, IntakeConstants.intakeSpeed))
-      ) 
-
-      
       .andThen(
         new ParallelCommandGroup(
           new shooterTimeCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, 3000), 
           new intakeTimeCommand(intake, IntakeConstants.intakeSpeed, 1000, 1000), 
           new ConveyerTimeCommand(conveyer, conveyerConstants.conveyerInSpeed, 3000), 
-          new autoDriveForwardSetDistance(drive, -50, 0.60)
+          new autoDriveForwardSetDistance(drive, -65, 0.70)
         ) 
-      )
+      ) 
+
+
+      // Expiramental: 
+
+      //   new ParallelRaceGroup(
+      //     new shooterTimeCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, 1500), 
+      //     new ConveyerTimeCommand(conveyer, conveyerConstants.conveyerInSpeed, 1500), 
+      //     new intakeTimeCommand(intake, 0, 1000, 1000) 
+      // ), 
+    
+    
+      // new ParallelDeadlineGroup(
+      //       new SequentialCommandGroup(
+      //         new visionTurnCommand(drive, vision, 1, false, VisionConstants.roughAlignmentTolerance)
+      //         .andThen(new visionDriveCommand(drive, vision, false, 1, VisionConstants.desiredApproachDistance))
+      //         .andThen(new visionTurnCommand(drive, vision, 1, false, VisionConstants.fineAlighnmentTolerance))
+      //       ),
+
+      //       new IntakeCommand(intake, IntakeConstants.intakeSpeed)
+
+      //   )
+
+
+      // .andThen(
+      //   new ParallelDeadlineGroup(
+      //     new IntakeWithSensorCommand(intake, IntakeConstants.intakeSpeed),
+      //     new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance, 0.5)
+      //   )
+      // )
+
+
+
+      // .andThen(
+      //   new ParallelCommandGroup(
+      //     new shooterTimeCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, 3000), 
+      //     new intakeTimeCommand(intake, IntakeConstants.intakeSpeed, 1000, 1000), 
+      //     new ConveyerTimeCommand(conveyer, conveyerConstants.conveyerInSpeed, 3000), 
+      //     new autoDriveForwardSetDistance(drive, -70, 0.60)
+      //   ) 
+      // ) 
+
+      // .andThen(
+      //   new autoTurnForTime(drive, 100, DriveConstants.leftDirection)
+      // ), 
+
+      // new ParallelRaceGroup(
+      //     new shooterTimeCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, 1500), 
+      //     new ConveyerTimeCommand(conveyer, conveyerConstants.conveyerInSpeed, 1500), 
+      //     new intakeTimeCommand(intake, 0, 1000, 1000) 
+      // ), 
+    
+    
+      // new ParallelDeadlineGroup(
+      //       new SequentialCommandGroup(
+      //         new visionTurnCommand(drive, vision, 1, false, VisionConstants.roughAlignmentTolerance)
+      //         .andThen(new visionDriveCommand(drive, vision, false, 1, VisionConstants.desiredApproachDistance))
+      //         .andThen(new visionTurnCommand(drive, vision, 1, false, VisionConstants.fineAlighnmentTolerance))
+      //       ),
+
+      //       new IntakeCommand(intake, IntakeConstants.intakeSpeed)
+
+      //   )
+
+
+      // .andThen(
+      //   new ParallelDeadlineGroup(
+      //     new IntakeWithSensorCommand(intake, IntakeConstants.intakeSpeed),
+      //     new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance, 0.5)
+      //   )
+      // )
+
+      // .andThen(
+      //   new ParallelCommandGroup(
+      //     new shooterTimeCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, 3000), 
+      //     new intakeTimeCommand(intake, IntakeConstants.intakeSpeed, 1000, 1000), 
+      //     new ConveyerTimeCommand(conveyer, conveyerConstants.conveyerInSpeed, 3000), 
+      //     new autoDriveForwardSetDistance(drive, -80, 0.70)
+      //   ) 
+      // ) 
 
 
 
