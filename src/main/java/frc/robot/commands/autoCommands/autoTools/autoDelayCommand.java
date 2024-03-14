@@ -10,8 +10,8 @@ public class autoDelayCommand extends Command {
   /** Creates a new autoDelayCommand. */
 
 
-  double dt; 
-  double initialTime; 
+  private double dt; 
+  private double initialTime; 
 
   public autoDelayCommand(double delayTime) {
     // Use addRequirements() here to declare subsystem dependencies.

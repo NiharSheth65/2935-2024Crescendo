@@ -22,7 +22,7 @@ public class autoDriveForwardSetDistance extends Command {
   private PIDController rightWheelPowerPIDController; 
   private PIDController gyroPIDController; 
   
-  double gryoTarget; 
+  private double gryoTarget; 
 
 
   private boolean driveCompleted; 
@@ -30,7 +30,7 @@ public class autoDriveForwardSetDistance extends Command {
   private SlewRateLimiter left_Limiter = new SlewRateLimiter(10); 
   private SlewRateLimiter right_Limiter = new SlewRateLimiter(10); 
 
-  double maxDriveSpeed; 
+  private double maxDriveSpeed; 
 
 
   public autoDriveForwardSetDistance(DriveSubsystem drive, double distance, double maxSpeed) {
@@ -72,7 +72,7 @@ public class autoDriveForwardSetDistance extends Command {
 
     double leftWheelOutput = leftWheelPowerPIDController.calculate(DRIVE_SUBSYSTEM.leftEncoderToInches(), distanceInInches); 
     double rightWheelOutput = rightWheelPowerPIDController.calculate(DRIVE_SUBSYSTEM.rightEncoderToInches(), distanceInInches); 
-    double gyroSpeed = gyroPIDController.calculate(DRIVE_SUBSYSTEM.getYaw(), gryoTarget); 
+    double gyroSpeed = -gyroPIDController.calculate(DRIVE_SUBSYSTEM.getYaw(), gryoTarget); 
 
     if(leftWheelOutput > maxDriveSpeed){
       leftWheelOutput = maxDriveSpeed; 

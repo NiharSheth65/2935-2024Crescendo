@@ -12,35 +12,34 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.Constants.WristConstants;
-import frc.robot.Constants.autoConstants;
 import frc.robot.Constants.conveyerConstants;
+import frc.robot.Constants.photonVisionConstants;
 import frc.robot.commands.autoCommands.autoTools.autoDriveForwardSetDistance;
-import frc.robot.commands.autoCommands.autoTools.autoTurnForTime;
-import frc.robot.commands.conveyerCommands.ConveyerCommand;
 import frc.robot.commands.conveyerCommands.ConveyerTimeCommand;
 import frc.robot.commands.intakeCommands.IntakeCommand;
 import frc.robot.commands.intakeCommands.IntakeWithSensorCommand;
 import frc.robot.commands.intakeCommands.intakeTimeCommand;
+import frc.robot.commands.photonvisionCommands.photonVisionDriveAndAlignCommand;
+import frc.robot.commands.photonvisionCommands.photonVisionDriveCommand;
 import frc.robot.commands.shooterCommands.shooterTimeCommand;
 import frc.robot.commands.visionCommands.visionDriveCommand;
 import frc.robot.commands.visionCommands.visionTurnCommand;
 import frc.robot.subsystems.ConveyerSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.PhotonvisionSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class blueCentreTwoGPAuto extends SequentialCommandGroup {
-  /** Creates a new blueCentreTwoGPAuto. */
-  public blueCentreTwoGPAuto(DriveSubsystem drive, VisionSubsystem vision, IntakeSubsystem intake, ShooterSubsystem shooter, ConveyerSubsystem conveyer) {
+public class blueTwoPiecePhotonVisionCommand extends SequentialCommandGroup {
+  /** Creates a new blueTwoPiecePhotonVisionCommand. */
+  public blueTwoPiecePhotonVisionCommand(DriveSubsystem drive, VisionSubsystem vision, IntakeSubsystem intake, ShooterSubsystem shooter, ConveyerSubsystem conveyer, PhotonvisionSubsystem photon) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-
       new ParallelRaceGroup(
           new shooterTimeCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, 1500), 
           new ConveyerTimeCommand(conveyer, conveyerConstants.conveyerInSpeed, 1500), 
@@ -49,28 +48,45 @@ public class blueCentreTwoGPAuto extends SequentialCommandGroup {
     
     
       new ParallelDeadlineGroup(
-
             new SequentialCommandGroup(
               new visionTurnCommand(drive, vision, 1, false, VisionConstants.roughAlignmentTolerance)
               .andThen(new visionDriveCommand(drive, vision, false, 1, VisionConstants.desiredApproachDistance))
               .andThen(new visionTurnCommand(drive, vision, 1, false, VisionConstants.fineAlighnmentTolerance))
-            )
+            ),
 
-            // new IntakeCommand(intake, IntakeConstants.intakeSpeed)
+            new IntakeCommand(intake, IntakeConstants.intakeSpeed)
 
         )
 
 
       .andThen(
         new ParallelDeadlineGroup(
-          new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance, 0.5),
-          new IntakeCommand(intake, IntakeConstants.intakeSpeed)
+          new IntakeWithSensorCommand(intake, IntakeConstants.intakeSpeed),
+          new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance, 0.5)
         )
       )
 
 
 
       .andThen(
+
+        new ParallelDeadlineGroup(
+
+          new SequentialCommandGroup(
+            new photonVisionDriveAndAlignCommand(photon, drive, 0, 0, false, photonVisionConstants.speakerMiddleBlueID), 
+            new photonVisionDriveCommand(photon, drive, 5, 0, false),
+            new photonVisionDriveAndAlignCommand(photon, drive, 0, 0, false, photonVisionConstants.speakerMiddleBlueID)
+          ), 
+
+          new ParallelCommandGroup(
+            new shooterTimeCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, 3000), 
+            new intakeTimeCommand(intake, IntakeConstants.intakeSpeed, 1000, 1000), 
+            new ConveyerTimeCommand(conveyer, conveyerConstants.conveyerInSpeed, 3000) 
+          )
+
+        ), 
+
+
         new ParallelCommandGroup(
           new shooterTimeCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, 3000), 
           new intakeTimeCommand(intake, IntakeConstants.intakeSpeed, 1000, 1000), 
@@ -78,7 +94,6 @@ public class blueCentreTwoGPAuto extends SequentialCommandGroup {
           new autoDriveForwardSetDistance(drive, -60, 0.60)
         ) 
       )
-
     );
   }
 }

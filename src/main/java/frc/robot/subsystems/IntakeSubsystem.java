@@ -18,7 +18,6 @@ public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
 
   private CANSparkMax intakeMotor = new CANSparkMax(IntakeConstants.intakeMotorId, MotorType.kBrushless); 
-
   private RelativeEncoder intakeEncoder = intakeMotor.getEncoder(); 
 
   public IntakeSubsystem() {
@@ -38,6 +37,8 @@ public class IntakeSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("intake velocity", intakeMotorVelocity()); 
     SmartDashboard.putNumber("intake current", intakeMotorCurrent()); 
     SmartDashboard.putBoolean("intaked", hasIntaked()); 
+
+
   }
 
 
@@ -71,7 +72,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public boolean hasIntaked(){
     
-    if(intakeMotorCurrent() > 15){
+    if(intakeMotorCurrent() > 20){
       return true; 
     }
 

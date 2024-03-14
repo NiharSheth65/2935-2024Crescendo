@@ -35,7 +35,7 @@ public class DriveSubsystem extends SubsystemBase {
   private RelativeEncoder rightBackEncoder = rightMotorBack.getEncoder(); 
   private RelativeEncoder leftBackEncoder = leftMotorBack.getEncoder(); 
 
-  DifferentialDrive differentialDrive = new DifferentialDrive(leftMotorFront, rightMotorFront); 
+  private DifferentialDrive differentialDrive = new DifferentialDrive(leftMotorFront, rightMotorFront); 
 
   private AHRS navx; 
   

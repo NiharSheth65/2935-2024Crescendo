@@ -12,15 +12,10 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.Constants.WristConstants;
-import frc.robot.Constants.autoConstants;
 import frc.robot.Constants.conveyerConstants;
 import frc.robot.commands.autoCommands.autoTools.autoDriveForwardSetDistance;
-import frc.robot.commands.autoCommands.autoTools.autoTurnForTime;
-import frc.robot.commands.conveyerCommands.ConveyerCommand;
 import frc.robot.commands.conveyerCommands.ConveyerTimeCommand;
 import frc.robot.commands.intakeCommands.IntakeCommand;
-import frc.robot.commands.intakeCommands.IntakeWithSensorCommand;
 import frc.robot.commands.intakeCommands.intakeTimeCommand;
 import frc.robot.commands.shooterCommands.shooterTimeCommand;
 import frc.robot.commands.visionCommands.visionDriveCommand;
@@ -34,9 +29,9 @@ import frc.robot.subsystems.VisionSubsystem;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class blueCentreTwoGPAuto extends SequentialCommandGroup {
-  /** Creates a new blueCentreTwoGPAuto. */
-  public blueCentreTwoGPAuto(DriveSubsystem drive, VisionSubsystem vision, IntakeSubsystem intake, ShooterSubsystem shooter, ConveyerSubsystem conveyer) {
+public class blueCentreShort extends SequentialCommandGroup {
+  /** Creates a new blueCentreShort. */
+  public blueCentreShort(DriveSubsystem drive, VisionSubsystem vision, IntakeSubsystem intake, ShooterSubsystem shooter, ConveyerSubsystem conveyer) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
@@ -72,13 +67,12 @@ public class blueCentreTwoGPAuto extends SequentialCommandGroup {
 
       .andThen(
         new ParallelCommandGroup(
-          new shooterTimeCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, 3000), 
+          new shooterTimeCommand(shooter, ShooterConstants.speakerTopMotorSpeedAutoLine, ShooterConstants.speakerBottomMotorSpeedAutoLine, 3000), 
           new intakeTimeCommand(intake, IntakeConstants.intakeSpeed, 1000, 1000), 
-          new ConveyerTimeCommand(conveyer, conveyerConstants.conveyerInSpeed, 3000), 
-          new autoDriveForwardSetDistance(drive, -60, 0.60)
+          new ConveyerTimeCommand(conveyer, conveyerConstants.conveyerInSpeed, 3000)
+          // new autoDriveForwardSetDistance(drive, -20, 0.60)
         ) 
       )
-
     );
   }
 }

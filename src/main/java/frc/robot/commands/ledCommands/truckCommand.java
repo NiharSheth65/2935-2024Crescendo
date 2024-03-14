@@ -2,41 +2,37 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.visionCommands;
+package frc.robot.commands.ledCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.VisionConstants;
-import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.LightSubsystem;
+import frc.robot.subsystems.TruckLightSubsystem;
 
-public class visionReadCommand extends Command {
+public class truckCommand extends Command {
+  /** Creates a new truckCommand. */
 
-  private VisionSubsystem vision; 
+  TruckLightSubsystem TRUCK_LIGHT_SUBSYSTEM; 
+  private double truckBrightness; 
 
-  /** Creates a new visionReadCommand. */
-  public visionReadCommand(VisionSubsystem vision) {
+  public truckCommand(TruckLightSubsystem truckLight, double brightness) {
     // Use addRequirements() here to declare subsystem dependencies.
-    this.vision = vision; 
-    addRequirements(vision);
+    this.TRUCK_LIGHT_SUBSYSTEM = truckLight;   
+    this.truckBrightness = brightness; 
+
+    addRequirements(TRUCK_LIGHT_SUBSYSTEM);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    // vision.setLED(0);
-    vision.setPipeline(1);
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
-    double tx = vision.tx();
-    double ty = vision.ty();
-    double ta = vision.ta();
-    double tv = vision.tv();
+    TRUCK_LIGHT_SUBSYSTEM.setTruckBrightness(truckBrightness);
   }
 
-  // Called once the command ends or is interrupted.
+  // Called once the command end or is interrupted.
   @Override
   public void end(boolean interrupted) {}
 

@@ -50,6 +50,7 @@ public class shooterVelocityCommand extends Command {
   @Override
   public void initialize() {
     SHOOTER_SUBSYSTEM.setShooterVelocityMode();
+    SHOOTER_SUBSYSTEM.setRampRate(2);
     SHOOTER_SUBSYSTEM.setTopPIDF(topShooterKp, topShooterKi, topShooterKd, topShooterKFf);
     SHOOTER_SUBSYSTEM.setBottomPIDF(bottomShooterKp, bottomShooterKi, bottomShooterKd, bottomShooterKFf);
 
@@ -61,8 +62,8 @@ public class shooterVelocityCommand extends Command {
   @Override
   public void execute() {
 
-    SHOOTER_SUBSYSTEM.setVelocityTop((topShooterSpeed*3));
-    SHOOTER_SUBSYSTEM.setVelocityBottom((bottomShooterSpeed*3));
+    SHOOTER_SUBSYSTEM.setVelocityTop((topShooterSpeed*3.0));
+    SHOOTER_SUBSYSTEM.setVelocityBottom((bottomShooterSpeed*3.0));
 
     SmartDashboard.putNumber("top motor veocity", SHOOTER_SUBSYSTEM.topMotorVelocity()); 
     SmartDashboard.putNumber("bottom motor veocity", SHOOTER_SUBSYSTEM.bottomMotorVelocity()); 

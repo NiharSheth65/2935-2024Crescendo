@@ -10,85 +10,146 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.conveyerConstants;
 
 public class ConveyerSubsystem extends SubsystemBase {
 
 
-  private CANSparkMax conveyerMotor = new CANSparkMax(conveyerConstants.conveyerMotorId, MotorType.kBrushless); 
+  private CANSparkMax conveyerTopMotor = new CANSparkMax(conveyerConstants.conveyerTopMotorId, MotorType.kBrushless); 
+  private CANSparkMax conveyerBottomMotor = new CANSparkMax(conveyerConstants.conveyerBottomMotorId, MotorType.kBrushless); 
 
-  private RelativeEncoder conveyerEncoder = conveyerMotor.getEncoder(); 
+  private RelativeEncoder conveyerTopEncoder = conveyerTopMotor.getEncoder(); 
+  private RelativeEncoder conveyerBottomEncoder = conveyerBottomMotor.getEncoder(); 
+
+  // zero - lowest 
+  // one -> middle 
+  // two - highest 
+  private DigitalInput intakeSwitch1 = new DigitalInput(IntakeConstants.switchOnePort); 
+  private DigitalInput intakeSwitch2 = new DigitalInput(IntakeConstants.switchTwoPort); 
+  private DigitalInput intakeSwitch3 = new DigitalInput(IntakeConstants.switchThreePort); 
   
   /** Creates a new ConveyerSubsystem. */
   public ConveyerSubsystem() {
-    conveyerMotor.restoreFactoryDefaults(); 
 
-    conveyerMotor.setInverted(false);
+    conveyerTopMotor.restoreFactoryDefaults(); 
+    conveyerBottomMotor.restoreFactoryDefaults(); 
 
-    conveyerEncoder.setPosition(0);
+    conveyerTopMotor.setInverted(false);
+    conveyerBottomMotor.setInverted(true);
+
+    conveyerTopEncoder.setPosition(0);
+    conveyerBottomEncoder.setPosition(0);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    SmartDashboard.putNumber("conveyer top current", conveyerTopMotorCurrent());  
+    SmartDashboard.putNumber("conveyer bototm current", conveyerBottomMotorCurrent());  
+
+    SmartDashboard.putBoolean("switch one", intakeSwitchOneValue()); 
+    SmartDashboard.putBoolean("switch two", intakeSwitchTwoValue()); 
+    SmartDashboard.putBoolean("switch three", intakeSwitchThreeValue()); 
+  }
+
+  public boolean intakeSwitchOneValue(){
+    return intakeSwitch1.get(); 
+  }
+
+  public boolean intakeSwitchTwoValue(){
+    return intakeSwitch2.get(); 
+  }
+
+  public boolean intakeSwitchThreeValue(){
+    return intakeSwitch3.get(); 
   }
 
   public void setBrakeMode(){
-    conveyerMotor.setIdleMode(IdleMode.kBrake); 
+    conveyerTopMotor.setIdleMode(IdleMode.kBrake); 
+    conveyerBottomMotor.setIdleMode(IdleMode.kBrake); 
   }
 
   public void setCoastMode(){
-    conveyerMotor.setIdleMode(IdleMode.kCoast); 
+    conveyerTopMotor.setIdleMode(IdleMode.kCoast); 
+    conveyerBottomMotor.setIdleMode(IdleMode.kCoast); 
   }
 
   public void resetEncoders(){
-    conveyerEncoder.setPosition(0);  
+    conveyerTopEncoder.setPosition(0);  
+    conveyerBottomEncoder.setPosition(0); 
   }
 
-  public double conveyerMotorPosition(){
-    return conveyerEncoder.getPosition(); 
+  public double conveyerTopMotorPosition(){
+    return conveyerTopEncoder.getPosition(); 
   }
 
-  public double conveyerMotorVelocity(){
-    return conveyerEncoder.getVelocity(); 
+  public double conveyerTopMotorVelocity(){
+    return conveyerTopEncoder.getVelocity(); 
   }
 
-  public double conveyerMotorCurrent(){
-    return conveyerMotor.getOutputCurrent(); 
+  public double conveyerTopMotorCurrent(){
+    return conveyerTopMotor.getOutputCurrent(); 
   }
-  // public double conveyerRightCurrent(){
-  //   return conveyerEncoderRight.getC
-  // }
 
-  public void setLeftconveyerPIDF(double p, double i, double d, double f){
-    conveyerMotor.getPIDController().setP(p); 
-    conveyerMotor.getPIDController().setI(i); 
-    conveyerMotor.getPIDController().setD(d); 
-    conveyerMotor.getPIDController().setFF(f); 
+  public double conveyerBottomMotorPosition(){
+    return conveyerBottomEncoder.getPosition(); 
+  }
+
+  public double conveyerBottomMotorVelocity(){
+    return conveyerBottomEncoder.getVelocity(); 
+  }
+
+  public double conveyerBottomMotorCurrent(){
+    return conveyerBottomMotor.getOutputCurrent(); 
+  }
+
+
+  public void setTopConveyerPIDF(double p, double i, double d, double f){
+    conveyerTopMotor.getPIDController().setP(p); 
+    conveyerTopMotor.getPIDController().setI(i); 
+    conveyerTopMotor.getPIDController().setD(d); 
+    conveyerTopMotor.getPIDController().setFF(f); 
+  }
+
+  public void setBottomConveyerPIDF(double p, double i, double d, double f){
+    conveyerBottomMotor.getPIDController().setP(p); 
+    conveyerBottomMotor.getPIDController().setI(i); 
+    conveyerBottomMotor.getPIDController().setD(d); 
+    conveyerBottomMotor.getPIDController().setFF(f); 
   }
 
   public void conveyerOutPutConstraints(double min, double max){
-    conveyerMotor.getPIDController().setOutputRange(min, max); 
+    conveyerTopMotor.getPIDController().setOutputRange(min, max); 
+    conveyerBottomMotor.getPIDController().setOutputRange(min, max); 
   }
 
   public void setconveyerVelocityMode(){
-    conveyerMotor.getPIDController().setReference(0, ControlType.kVelocity); 
+    conveyerTopMotor.getPIDController().setReference(0, ControlType.kVelocity); 
+    conveyerBottomMotor.getPIDController().setReference(0, ControlType.kVelocity); 
   }
 
   public void setconveyerPowerMode(){
-    conveyerMotor.getPIDController().setReference(0, ControlType.kVoltage); 
+    conveyerTopMotor.getPIDController().setReference(0, ControlType.kVoltage); 
+    conveyerBottomMotor.getPIDController().setReference(0, ControlType.kVoltage); 
   }
 
   public void setVelocity(double conveyerVelocity){
-    conveyerMotor.getPIDController().setReference(conveyerVelocity, ControlType.kVelocity); 
+    conveyerTopMotor.getPIDController().setReference(conveyerVelocity, ControlType.kVelocity); 
+    conveyerBottomMotor.getPIDController().setReference(conveyerVelocity, ControlType.kVelocity); 
   }
 
   public void setConveyer(double conveyerSpeed){
-    conveyerMotor.set(conveyerSpeed);
+    conveyerTopMotor.set(conveyerSpeed);
+    conveyerBottomMotor.set(conveyerSpeed); 
   }
 
   public void stop(){
-    conveyerMotor.stopMotor();
+    conveyerTopMotor.stopMotor();
+    conveyerBottomMotor.stopMotor();
   }
 }

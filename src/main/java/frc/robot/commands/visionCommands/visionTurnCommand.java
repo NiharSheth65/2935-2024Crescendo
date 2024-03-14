@@ -7,6 +7,7 @@ package frc.robot.commands.visionCommands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -49,7 +50,7 @@ public class visionTurnCommand extends Command {
 
     
     else if(pipeline == 1){
-      kp = 0.03; 
+      kp = 0.075; 
       ki = 0.025; 
       kd = 0;
     }
@@ -109,12 +110,12 @@ public class visionTurnCommand extends Command {
 
     double outputSpeed = visionPID.calculate(measuredValue, targetValue); 
 
-    if(outputSpeed > 0.8){
-      outputSpeed = 0.8; 
+    if(outputSpeed > VisionConstants.limelightTurnSpeedLimit){
+      outputSpeed = VisionConstants.limelightTurnSpeedLimit; 
     }
 
-    else if(outputSpeed < -0.8){
-      outputSpeed = -0.8; 
+    else if(outputSpeed < -VisionConstants.limelightTurnSpeedLimit){
+      outputSpeed = -VisionConstants.limelightTurnSpeedLimit; 
     }
 
     DRIVE_SUBSYSTEM.setTank(outputSpeed, -outputSpeed);
