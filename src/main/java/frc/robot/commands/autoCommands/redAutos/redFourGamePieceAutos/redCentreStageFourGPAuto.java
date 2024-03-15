@@ -21,9 +21,9 @@ import frc.robot.commands.conveyerCommands.ConveyerIntakeTillThirdSensor;
 import frc.robot.commands.conveyerCommands.conveyTillFirstSensor;
 import frc.robot.commands.conveyerCommands.conveyerTillSensorCleared;
 import frc.robot.commands.intakeCommands.IntakeCommand;
-import frc.robot.commands.intakeCommands.intakeTillFirstSensor;
 import frc.robot.commands.ledCommands.truckCommand;
 import frc.robot.commands.photonvisionCommands.photonVisionDriveAndAlignCommand;
+import frc.robot.commands.photonvisionCommands.photonVisionLookForCommand;
 import frc.robot.commands.shooterCommands.shooterVelocityCommand;
 import frc.robot.commands.visionCommands.visionDriveCommand;
 import frc.robot.commands.visionCommands.visionTurnCommand;
@@ -39,12 +39,11 @@ import frc.robot.subsystems.VisionSubsystem;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class redCentreStageFourGPAuto extends SequentialCommandGroup {
-  /** Creates a new redCentreStageFourGPAuto. */
+  /** Creates a new redAwesome. */
   public redCentreStageFourGPAuto(DriveSubsystem drive, VisionSubsystem vision, IntakeSubsystem intake, ShooterSubsystem shooter, ConveyerSubsystem conveyer, PhotonvisionSubsystem photon, TruckLightSubsystem truck) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-
       new ParallelRaceGroup(
         
         new truckCommand(truck, 1.0), 
@@ -86,7 +85,8 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
 
                 .andThen(
                   new ParallelDeadlineGroup(
-                    new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance + 4, DriveConstants.autoDriveLimelightSpeed),
+                    new conveyTillFirstSensor(conveyer), 
+                    new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance, DriveConstants.autoDriveLimelightSpeed),
                     new IntakeCommand(intake, IntakeConstants.intakeSpeed)
                
                   )
@@ -101,10 +101,9 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
 
                       new SequentialCommandGroup(
 
-                        new ParallelCommandGroup(
-                          // new photonVisionDriveAndAlignCommand(photon, drive, 0, 0, false), 
+                        new ParallelCommandGroup( 
                           new ConveyerIntakeTillThirdSensor(conveyer),
-                          new autoDriveForwardSetDistance(drive, -55, DriveConstants.autoDriveSpeed)
+                          new autoDriveForwardSetDistance(drive, -50, DriveConstants.autoDriveSpeed)
                           
                         ), 
 
@@ -126,6 +125,7 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
               // every thing else for note 3 
               new SequentialCommandGroup(
                 // turn to find piece 
+                new autoDriveForwardSetDistance(drive, 10, DriveConstants.autoDriveSpeed), 
                 new autoTurnCommand(drive, -30, false), 
 
                 // find piece 
@@ -137,15 +137,21 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
                       )
                 ), 
 
-
                 // drive into, intake and bring peice up 
                 new ParallelDeadlineGroup(
+                  new conveyTillFirstSensor(conveyer),
                   new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance/1.5, DriveConstants.autoDriveLimelightSpeed),
-                  new IntakeCommand(intake, IntakeConstants.intakeSpeed), 
-                  new conveyerTillSensorCleared(conveyer) 
+                  new IntakeCommand(intake, IntakeConstants.intakeSpeed)
                 ), 
 
-                new autoTurnCommand(drive, 25, false), 
+                // new autoTurnCommand(drive, 25, false), 
+                new ParallelRaceGroup(
+                  new autoTurnCommand(drive, 25, false), 
+                  new photonVisionLookForCommand(photon, false, photonVisionConstants.speakerMiddleRedID)
+                ), 
+
+                new photonVisionDriveAndAlignCommand(photon, drive, 0, 0, false, photonVisionConstants.speakerMiddleRedID), 
+
 
                 // drive up and run conveyer 
                 new ParallelDeadlineGroup(
@@ -161,7 +167,7 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
                 // turn to get april tags in view 
                 // new autoTurnCommand(drive, 15, false), 
                 // align to tag 
-                new photonVisionDriveAndAlignCommand(photon, drive, 0, 0, false, photonVisionConstants.speakerMiddleRedID), 
+                // new photonVisionDriveAndAlignCommand(photon, drive, 0, 0, false, photonVisionConstants.speakerMiddleBlueID), 
 
                 // final step to shoot
                 new ParallelRaceGroup(
@@ -189,9 +195,9 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
               // every thing else for note 3 
               new SequentialCommandGroup(
                 // turn to find piece 
+                new autoDriveForwardSetDistance(drive, 6, DriveConstants.autoDriveSpeed), 
+                new autoTurnCommand(drive, 55, false), 
                 // new autoDriveForwardSetDistance(drive, 20, DriveConstants.autoDriveSpeed), 
-                new autoTurnCommand(drive, 60, false), 
-                new autoDriveForwardSetDistance(drive, 20, DriveConstants.autoDriveSpeed), 
                 // find piece 
                 new ParallelDeadlineGroup(
                       new SequentialCommandGroup(
@@ -204,40 +210,37 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
 
                 // drive into, intake and bring peice up 
                 new ParallelDeadlineGroup(
+                  new conveyTillFirstSensor(conveyer), 
                   new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance, DriveConstants.autoDriveLimelightSpeed),
-                  new IntakeCommand(intake, IntakeConstants.intakeSpeed), 
-                  new conveyTillFirstSensor(conveyer)
+                  new IntakeCommand(intake, IntakeConstants.intakeSpeed)
+          
                 ), 
 
-                new autoTurnCommand(drive, -25, false), 
-
-                // drive up and run conveyer 
                 new ParallelDeadlineGroup(
-                  new ParallelCommandGroup(
-                    new autoDriveForwardSetDistance(drive, -65, DriveConstants.autoDriveSpeed), 
-                    new ConveyerIntakeTillThirdSensor(conveyer)
-                  ),  
-
+                  new autoDriveForwardSetDistance(drive, -10, DriveConstants.autoDriveSpeed), 
+                  new ConveyerIntakeTillThirdSensor(conveyer), 
                   new IntakeCommand(intake, IntakeConstants.intakeSpeed)
                 ), 
+                
 
-                // turn to get april tags in view 
-                // new autoTurnCommand(drive, -65, false), 
-                // align to tag 
+                new ParallelRaceGroup(
+                  new autoTurnCommand(drive, -35, false), 
+                  new photonVisionLookForCommand(photon, false, photonVisionConstants.speakerMiddleRedID), 
+                  new ConveyerCommand(conveyer, conveyerConstants.conveyerInSpeed/5)
+                ), 
+
                 new photonVisionDriveAndAlignCommand(photon, drive, 0, 0, false, photonVisionConstants.speakerMiddleRedID), 
 
+        
                 // final step to shoot
-                new ParallelRaceGroup(
+                new ParallelDeadlineGroup(
+                  new autoDriveForwardSetDistance(drive, -55, DriveConstants.autoDriveSpeed),
+                  new IntakeCommand(intake, IntakeConstants.intakeSpeed), 
+                  new ConveyerIntakeTillThirdSensor(conveyer)
+     
+                ), 
 
-                // run intake and shooter
-                  new IntakeCommand(intake, IntakeConstants.intakeSpeed),
-
-                  // drive to sub woofer and let of not once close enough 
-                  new SequentialCommandGroup(
-                    new autoDriveForwardSetDistance(drive, -10, DriveConstants.autoDriveSpeed), 
-                    new conveyerTillSensorCleared(conveyer)
-                  )
-                )
+                new conveyerTillSensorCleared(conveyer)
 
         
               )
@@ -248,4 +251,3 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
     );
   }
 }
-

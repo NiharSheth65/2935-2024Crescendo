@@ -56,7 +56,8 @@ public final class Constants {
     public static final double driveSlowSpeed = 0.75; 
     public static final double driveFastSpeed = 1; 
 
-    public static final double turnSpeed = 0.5; 
+    public static final double turnSlowSpeed = 0.5; 
+    public static final double turnFastSpeed = 0.75; 
 
     public static final double driveDeadband = 0.1; 
     public static final double turnDead = 0.1; 
@@ -72,7 +73,7 @@ public final class Constants {
     // public static final double autoDriveForwardAndIntakeDistance = VisionConstants.desiredApproachDistance + 3; 
     public static final double autoDriveForwardAndIntakeDistance = 35; 
 
-    public static final double autoDriveSpeed = 0.75; 
+    public static final double autoDriveSpeed = 0.60; 
     public static final double autoDriveLimelightSpeed = 0.45; 
   }
 
@@ -83,26 +84,34 @@ public final class Constants {
     public static final double shooterFullSpeed = 1.0; 
     public static final double shooterOffSpeed = 0.0; 
 
-    public static final double topSpeed = 0.26;
-    public static final double bottomSpeed = 0.28;
+    // public static final double topSpeed = 0.26;
+    // public static final double bottomSpeed = 0.28;
 
 
-    public static final double subwooferSpeedTop = 0.50; 
-    public static final double subwooferSpeedBottom = 0.50; 
+    // public static final double subwooferSpeedTop = 0.50; 
+    // public static final double subwooferSpeedBottom = 0.50; 
     
-    public static final double speakerTopMotorSpeed = 5700*0.80; 
+    public static final double speakerTopMotorSpeed = -5700*0.80; 
     public static final double speakerBottomMotorSpeed = 5700*0.80; 
-  
 
-    public static final double speakerTopMotorSpeedAutoLine = 5700*0.9; 
+        
+    public static final double speakerAutoTopMotorSpeed = -5700*0.75; 
+    public static final double speakerAutoBottomMotorSpeed = 5700*0.35; 
+  
+  
+    public static final double speakerTopMotorSpeedAutoLine = -5700*0.9; 
     public static final double speakerBottomMotorSpeedAutoLine = 5700*0.4; 
 
 
-    public static final double autoCentreTopMotorSpeed = 5700 * 0.50; 
+    public static final double autoCentreTopMotorSpeed = -5700 * 0.50; 
     public static final double autoCentreBottomMotorSpeed = 5700 * 0.50; 
 
-    public static final double ampTopMotorSpeed = 5700 * 0.0; 
-    public static final double ampBottomMotorSpeed = 5700 * 0.4; 
+    // public static final double ampTopMotorSpeed = 5700 * 0.1; 
+    // public static final double ampBottomMotorSpeed = 5700 * 0.35; 
+
+    public static final double shooterHoldInSpeed = 5700 * -0.1; 
+    public static final double ampTopMotorSpeed = 5700 * -0.2; 
+    public static final double ampBottomMotorSpeed = 5700 * 0.6; 
 
     public static final double shooterStopSpeed = 0; 
   }
@@ -124,7 +133,7 @@ public final class Constants {
   public static class VisionConstants{
     public static final double limlightLensHeight = 17.5; 
     public static final double shooterAprilTagHeight = 16.5; 
-    public static final double limelightMountAngle = -10; 
+    public static final double limelightMountAngle = -6; 
 
     public static final double roughAlignmentTolerance = 5.5; 
     public static final double fineAlighnmentTolerance = 3.5; 

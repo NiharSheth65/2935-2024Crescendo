@@ -28,7 +28,7 @@ public class ShooterSubsystem extends SubsystemBase {
     topShooterMotor.restoreFactoryDefaults(); 
     bottomShooterMotor.restoreFactoryDefaults(); 
 
-    topShooterMotor.setInverted(true);
+    // topShooterMotor.setInverted(true);
 
     topShooterEncoder.setPosition(0); 
     bottomShooterEncoder.setPosition(0); 

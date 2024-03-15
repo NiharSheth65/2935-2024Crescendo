@@ -42,70 +42,77 @@ public class redCentreTwoGPAuto extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
 
-      // NOTE 1 ******************************************
       new ParallelRaceGroup(
-                 
-        new IntakeCommand(intake, IntakeConstants.intakeSpeed),
-        new shooterVelocityCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed), 
+          
         new truckCommand(truck, 1.0), 
-
-        new SequentialCommandGroup( 
-                new ConveyerIntakeTillThirdSensor(conveyer), 
-                new conveyerTillSensorCleared(conveyer)
-        ) 
-                
-
-      ), 
-
-
-      // note 2 **********************************************************************************
-      new ParallelRaceGroup(
         new shooterVelocityCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed), 
-        
+
         new SequentialCommandGroup(
-          // note 2 pick up 
-          new ParallelDeadlineGroup(
+          // NOTE 1 ******************************************
+          new ParallelRaceGroup(
+                        
+            new IntakeCommand(intake, IntakeConstants.intakeSpeed),
 
-                new SequentialCommandGroup(
-                  new visionTurnCommand(drive, vision, 1, false, VisionConstants.roughAlignmentTolerance)
-                  .andThen(new visionDriveCommand(drive, vision, false, 1, VisionConstants.desiredApproachDistance))
-                  .andThen(new visionTurnCommand(drive, vision, 1, false, VisionConstants.fineAlighnmentTolerance))
-                )
-                // new IntakeCommand(intake, IntakeConstants.intakeSpeed)
-
-            )
-
-
-          // note 2 pick up continued 
-
-            .andThen(
-              new ParallelCommandGroup(
-                new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance, DriveConstants.autoDriveLimelightSpeed),
-                new intakeTillFirstSensor(intake, conveyer)
-              )
-            )
-
-          // note two shoot 
-
-            .andThen(
-
-              new ParallelRaceGroup(
-                  new IntakeCommand(intake, IntakeConstants.intakeSpeed),
-
-                  new SequentialCommandGroup(
-
-                    new ParallelCommandGroup(
-                      // new photonVisionDriveAndAlignCommand(photon, drive, 0, 0, false), 
-                      new ConveyerIntakeTillThirdSensor(conveyer),
-                      new autoDriveForwardSetDistance(drive, -65, DriveConstants.autoDriveLimelightSpeed)
-                      
-                    ), 
-
-         
-
+            new SequentialCommandGroup( 
+                    new ConveyerIntakeTillThirdSensor(conveyer), 
                     new conveyerTillSensorCleared(conveyer)
+            ) 
+                    
+
+          ), 
+
+
+          // note 2 **********************************************************************************
+          new ParallelRaceGroup(
+
+            new SequentialCommandGroup(
+              // note 2 pick up 
+              new ParallelDeadlineGroup(
+
+                    new SequentialCommandGroup(
+                      new visionTurnCommand(drive, vision, 1, false, VisionConstants.roughAlignmentTolerance)
+                      .andThen(new visionDriveCommand(drive, vision, false, 1, VisionConstants.desiredApproachDistance))
+                      .andThen(new visionTurnCommand(drive, vision, 1, false, VisionConstants.fineAlighnmentTolerance))
+                    )
+                    // new IntakeCommand(intake, IntakeConstants.intakeSpeed)
+
+                )
+
+
+              // note 2 pick up continued 
+
+                .andThen(
+                  new ParallelDeadlineGroup(
+                    new conveyTillFirstSensor(conveyer), 
+                    new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance, DriveConstants.autoDriveLimelightSpeed),
+                    new IntakeCommand(intake, IntakeConstants.intakeSpeed)
+              
+                  )
+                )
+
+              // note two shoot 
+
+                .andThen(
+
+                  new ParallelRaceGroup(
+                      new IntakeCommand(intake, IntakeConstants.intakeSpeed),
+
+                      new SequentialCommandGroup(
+
+                        new ParallelCommandGroup(
+                          // new photonVisionDriveAndAlignCommand(photon, drive, 0, 0, false), 
+                          new ConveyerIntakeTillThirdSensor(conveyer),
+                          new autoDriveForwardSetDistance(drive, -45, DriveConstants.autoDriveSpeed)
+                          
+                        ), 
+
+              
+
+                        new conveyerTillSensorCleared(conveyer)
+                      )
                   )
               )
+            )
           )
         )
       )

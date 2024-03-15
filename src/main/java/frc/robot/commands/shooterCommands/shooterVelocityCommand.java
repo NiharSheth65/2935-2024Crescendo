@@ -49,6 +49,9 @@ public class shooterVelocityCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+
+    // topShooterSpeed = 0; 
+    // bottomShooterSpeed = 0; 
     SHOOTER_SUBSYSTEM.setShooterVelocityMode();
     SHOOTER_SUBSYSTEM.setRampRate(2);
     SHOOTER_SUBSYSTEM.setTopPIDF(topShooterKp, topShooterKi, topShooterKd, topShooterKFf);

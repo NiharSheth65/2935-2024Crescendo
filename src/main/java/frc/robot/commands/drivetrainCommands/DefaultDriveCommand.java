@@ -20,6 +20,7 @@ public class DefaultDriveCommand extends Command {
   double drive; 
   double turn; 
   double driveSpeed; 
+  double turnSpeed; 
 
   double dSlew = DriveConstants.driveSlew; 
   double tSlew = DriveConstants.turnSlew; 
@@ -71,6 +72,18 @@ public class DefaultDriveCommand extends Command {
       tSlew = DriveConstants.turnSlew; 
     }
 
+    if(joy.getRawButton(OperatorConstants.BUTTON_LB_PORT)){
+      turnSpeed = DriveConstants.turnFastSpeed; 
+      dSlew = 10; 
+      tSlew = 10; 
+    }
+
+    else{
+      turnSpeed = DriveConstants.turnSlowSpeed; 
+      dSlew = DriveConstants.driveSlew; 
+      tSlew = DriveConstants.turnSlew; 
+    }
+
     if(Math.abs(joy.getRawAxis(OperatorConstants.driveJoystickAxis)) < DriveConstants.driveDeadband){
       drive = 0; 
     }
@@ -84,7 +97,7 @@ public class DefaultDriveCommand extends Command {
     }
 
     else{
-      turn = joy.getRawAxis(OperatorConstants.turnJoystickAxis)*DriveConstants.turnSpeed; 
+      turn = joy.getRawAxis(OperatorConstants.turnJoystickAxis)* turnSpeed; 
     }
     
 

@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.autoCommands.blueAutos.blueTwoGamePieceAutos;
+package frc.robot.commands.autoCommands.redAutos.redThreeGamePieceAutos;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -12,8 +12,11 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.Constants.conveyerConstants;
+import frc.robot.Constants.photonVisionConstants;
 import frc.robot.commands.autoCommands.autoTools.autoDriveForwardSetDistance;
 import frc.robot.commands.autoCommands.autoTools.autoTurnCommand;
+import frc.robot.commands.conveyerCommands.ConveyerCommand;
 import frc.robot.commands.conveyerCommands.ConveyerIntakeTillThirdSensor;
 import frc.robot.commands.conveyerCommands.conveyTillFirstSensor;
 import frc.robot.commands.conveyerCommands.conveyerTillSensorCleared;
@@ -35,9 +38,9 @@ import frc.robot.subsystems.VisionSubsystem;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class blueCentreTwoGPAuto extends SequentialCommandGroup {
-  /** Creates a new blueCentreTwoPieceAuto. */
-  public blueCentreTwoGPAuto(DriveSubsystem drive, VisionSubsystem vision, IntakeSubsystem intake, ShooterSubsystem shooter, ConveyerSubsystem conveyer, PhotonvisionSubsystem photon, TruckLightSubsystem truck) {
+public class redCentreClearThreeGPAuto extends SequentialCommandGroup {
+  /** Creates a new redCentreClearThreeGPAuto. */
+  public redCentreClearThreeGPAuto(DriveSubsystem drive, VisionSubsystem vision, IntakeSubsystem intake, ShooterSubsystem shooter, ConveyerSubsystem conveyer, PhotonvisionSubsystem photon, TruckLightSubsystem truck) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
@@ -98,10 +101,9 @@ public class blueCentreTwoGPAuto extends SequentialCommandGroup {
 
                       new SequentialCommandGroup(
 
-                        new ParallelCommandGroup(
-                          // new photonVisionDriveAndAlignCommand(photon, drive, 0, 0, false), 
+                        new ParallelCommandGroup( 
                           new ConveyerIntakeTillThirdSensor(conveyer),
-                          new autoDriveForwardSetDistance(drive, -45, DriveConstants.autoDriveSpeed)
+                          new autoDriveForwardSetDistance(drive, -50, DriveConstants.autoDriveSpeed)
                           
                         ), 
 
@@ -112,9 +114,71 @@ public class blueCentreTwoGPAuto extends SequentialCommandGroup {
                   )
               )
             )
-          )
+          ), 
+
+            // note 3 *******************************************
+
+            new ParallelRaceGroup(
+
+              // run shooter in the background
+
+              // every thing else for note 3 
+              new SequentialCommandGroup(
+                // turn to find piece 
+                new autoDriveForwardSetDistance(drive, 6, DriveConstants.autoDriveSpeed), 
+                new autoTurnCommand(drive, 35, false), 
+                // new autoDriveForwardSetDistance(drive, 20, DriveConstants.autoDriveSpeed), 
+                // find piece 
+                new ParallelDeadlineGroup(
+                      new SequentialCommandGroup(
+                        new visionTurnCommand(drive, vision, 1, false, VisionConstants.roughAlignmentTolerance)
+                        .andThen(new visionDriveCommand(drive, vision, false, 1, VisionConstants.desiredApproachDistance))
+                        .andThen(new visionTurnCommand(drive, vision, 1, false, VisionConstants.fineAlighnmentTolerance))
+                      )
+                ), 
+
+
+                // drive into, intake and bring peice up 
+                new ParallelDeadlineGroup(
+                  new conveyTillFirstSensor(conveyer), 
+                  new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance, DriveConstants.autoDriveLimelightSpeed),
+                  new IntakeCommand(intake, IntakeConstants.intakeSpeed)
+          
+                ), 
+
+                new ParallelDeadlineGroup(
+                  new autoDriveForwardSetDistance(drive, -10, DriveConstants.autoDriveSpeed), 
+                  new ConveyerIntakeTillThirdSensor(conveyer), 
+                  new IntakeCommand(intake, IntakeConstants.intakeSpeed)
+                ), 
+                
+
+                new ParallelRaceGroup(
+                  new autoTurnCommand(drive, -25, false), 
+                  new photonVisionLookForCommand(photon, false, photonVisionConstants.speakerMiddleRedID), 
+                  new ConveyerCommand(conveyer, conveyerConstants.conveyerInSpeed/5)
+                ), 
+
+                new photonVisionDriveAndAlignCommand(photon, drive, 0, 0, false, photonVisionConstants.speakerMiddleRedID), 
+
+        
+                // final step to shoot
+                new ParallelDeadlineGroup(
+                  new autoDriveForwardSetDistance(drive, -55, DriveConstants.autoDriveSpeed),
+                  new IntakeCommand(intake, IntakeConstants.intakeSpeed), 
+                  new ConveyerIntakeTillThirdSensor(conveyer)
+     
+                ), 
+
+                new conveyerTillSensorCleared(conveyer)
+
+        
+              )
+            )
+
         )
       )
+      
     );
   }
 }

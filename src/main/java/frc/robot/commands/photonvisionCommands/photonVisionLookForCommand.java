@@ -20,12 +20,8 @@ public class photonVisionLookForCommand extends Command {
 
   private PhotonvisionSubsystem PHOTON_SUBSYSTEM; 
 
-
-
   private final String VISION_PREFIX = "Vision/"; 
 
-
-  
   double yaw; 
 
   private boolean end; 
