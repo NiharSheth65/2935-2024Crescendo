@@ -34,14 +34,6 @@ public class photonVisionDriveAndAlignCommand extends Command {
   private PIDController forwardController; 
   private PIDController turnController; 
 
-  // private double driveKP = photonVisionConstants.driveKp; 
-  // private double driveKI = photonVisionConstants.driveKi; 
-  // private double driveKD = photonVisionConstants.driveKd;
-  
-  // private double turnKP = photonVisionConstants.turnKp; 
-  // private double turnKI = photonVisionConstants.turnKi; 
-  // private double turnKD = photonVisionConstants.turnKd;
-
   private double driveKP = 0.4; 
   private double driveKI = 0; 
   private double driveKD = 0;

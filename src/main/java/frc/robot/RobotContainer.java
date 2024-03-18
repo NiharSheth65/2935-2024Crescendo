@@ -13,12 +13,17 @@ import frc.robot.Constants.WristConstants;
 import frc.robot.Constants.conveyerConstants;
 import frc.robot.Constants.photonVisionConstants;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.autoCommands.autoTwoPieceCentreNoVision;
+import frc.robot.commands.autoCommands.doNothingAuto;
+import frc.robot.commands.autoCommands.driveAuto;
+import frc.robot.commands.autoCommands.shootAndClearAuto;
 import frc.robot.commands.autoCommands.autoTools.autoDriveForwardSetDistance;
 import frc.robot.commands.autoCommands.autoTools.autoTurnCommand;
 import frc.robot.commands.autoCommands.autoTools.autoTurnForTime;
 import frc.robot.commands.autoCommands.autoTools.autoTurnOnHeadingCommand;
 import frc.robot.commands.autoCommands.autoTools.autoWithLimelight;
 import frc.robot.commands.autoCommands.blueAutos.blueFourGamePieceAuto.blueCentreClearFourGPAuto;
+import frc.robot.commands.autoCommands.blueAutos.blueMiddelGrabStageSidAuto.blueMiddlePickUp;
 import frc.robot.commands.autoCommands.blueAutos.blueThreeGamePieceAutos.blueCentreClearThreeGPAuto;
 import frc.robot.commands.autoCommands.blueAutos.blueThreeGamePieceAutos.blueCentreStageThreeGPAuto;
 import frc.robot.commands.autoCommands.blueAutos.blueTwoGamePieceAutos.blueCentreClearTwoGPAuto;
@@ -34,6 +39,7 @@ import frc.robot.commands.conveyerCommands.ConveyOutTillSensorThree;
 import frc.robot.commands.conveyerCommands.ConveyerCommand;
 import frc.robot.commands.conveyerCommands.ConveyerIntakeTillThirdSensor;
 import frc.robot.commands.conveyerCommands.ConveyerTimeCommand;
+import frc.robot.commands.conveyerCommands.conveyTillFirstSensor;
 import frc.robot.commands.drivetrainCommands.DefaultDriveCommand;
 import frc.robot.commands.drivetrainCommands.DriveTurnCommand;
 import frc.robot.commands.drivetrainCommands.DriveVelocityControl;
@@ -45,6 +51,7 @@ import frc.robot.commands.intakeCommands.intakeTimeCommand;
 import frc.robot.commands.ledCommands.LedCommand;
 import frc.robot.commands.ledCommands.ledRevedUpCommand;
 import frc.robot.commands.ledCommands.truckCommand;
+import frc.robot.commands.photonvisionCommands.photonVisionAlignToTagCommand;
 import frc.robot.commands.photonvisionCommands.photonVisionDriveAndAlignCommand;
 import frc.robot.commands.photonvisionCommands.photonVisionDriveCommand;
 // import frc.robot.commands.photonvisionCommands.photonVisionDriveAndAlignCommand;
@@ -53,6 +60,7 @@ import frc.robot.commands.shooterCommands.shooterTimeCommand;
 import frc.robot.commands.shooterCommands.shooterVelocityCommand;
 import frc.robot.commands.visionCommands.visionDriveCommand;
 import frc.robot.commands.visionCommands.visionReadCommand;
+import frc.robot.commands.visionCommands.visionSweepCommand;
 import frc.robot.commands.visionCommands.visionTurnCommand;
 import frc.robot.subsystems.ConveyerSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -134,25 +142,30 @@ public class RobotContainer {
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
 
-  private final Command m_blueCentreClearSideFourPieceAuto = new blueCentreClearFourGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem); 
+  private final Command m_blueCentreClearSideFourPieceAuto = new blueCentreClearFourGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem, m_LightSubsystem); 
   
-  private final Command m_blueCentreClearSideThreePieceAuto = new blueCentreClearThreeGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem); 
-  private final Command m_blueCentreStageSideThreePieceAuto = new blueCentreStageThreeGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem); 
+  private final Command m_blueCentreClearSideThreePieceAuto = new blueCentreClearThreeGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem, m_LightSubsystem); 
+  private final Command m_blueCentreStageSideThreePieceAuto = new blueCentreStageThreeGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem, m_LightSubsystem); 
   
-  private final Command m_blueCentreCentreSideTwoPieceAuto = new blueCentreTwoGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem); 
-  private final Command m_blueCentreStageSideTwoPieceAuto = new blueCentreStageTwoGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem); 
-  private final Command m_blueCentreClearSideTwoPieceAuto = new blueCentreClearTwoGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem); 
+  private final Command m_blueCentreCentreSideTwoPieceAuto = new blueCentreTwoGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem, m_LightSubsystem); 
+  private final Command m_blueCentreStageSideTwoPieceAuto = new blueCentreStageTwoGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem, m_LightSubsystem); 
+  private final Command m_blueCentreClearSideTwoPieceAuto = new blueCentreClearTwoGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem, m_LightSubsystem); 
 
-  private final Command m_redCentreClearSideFourPieceAuto = new redCentreStageFourGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem); 
+  private final Command m_redCentreStageSideFourPieceAuto = new redCentreStageFourGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem, m_LightSubsystem); 
   
-  private final Command m_redCentreClearSideThreePieceAuto = new redCentreClearThreeGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem); 
-  private final Command m_redCentreStageSideThreePieceAuto = new redCentreStageThreeGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem); 
+  private final Command m_redCentreClearSideThreePieceAuto = new redCentreClearThreeGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem, m_LightSubsystem); 
+  private final Command m_redCentreStageSideThreePieceAuto = new redCentreStageThreeGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem, m_LightSubsystem); 
   
-  private final Command m_redCentreCentreSideTwoPieceAuto = new redCentreTwoGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem); 
-  private final Command m_redCentreStageSideTwoPieceAuto = new redCentreStageTwoGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem); 
-  private final Command m_redCentreClearSideTwoPieceAuto = new redCentreClearTwoGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem); 
+  private final Command m_redCentreCentreSideTwoPieceAuto = new redCentreTwoGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem, m_LightSubsystem); 
+  private final Command m_redCentreStageSideTwoPieceAuto = new redCentreStageTwoGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem, m_LightSubsystem); 
+  private final Command m_redCentreClearSideTwoPieceAuto = new redCentreClearTwoGPAuto(m_DriveSubsystem, m_VisionSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_PhotonvisionSubsystem, m_TruckLightSubsystem, m_LightSubsystem); 
 
+  private final Command m_clearAuto = new driveAuto(m_DriveSubsystem); 
+  private final Command m_shootAndClearAuto = new shootAndClearAuto(m_DriveSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_TruckLightSubsystem, m_LightSubsystem); 
+  private final Command m_doNothingAuto = new doNothingAuto(); 
+  private final Command m_twoPieceNoVision = new autoTwoPieceCentreNoVision(m_DriveSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_TruckLightSubsystem, m_LightSubsystem); 
 
+  private final Command m_blueMiddlePickUp = new blueMiddlePickUp(m_DriveSubsystem, m_IntakeSubsystem, m_ShooterSubsystem, m_ConveyerSubsystem, m_TruckLightSubsystem, m_LightSubsystem, m_VisionSubsystem);
   SendableChooser<Command> m_autoChooser = new SendableChooser<>(); 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -163,15 +176,29 @@ public class RobotContainer {
     // blue side autos 
 
     m_autoChooser.setDefaultOption("BLUE - FOUR PIECE CLEAR SIDE", m_blueCentreClearSideFourPieceAuto);
-    m_autoChooser.addOption("RED", m_redCentreClearSideFourPieceAuto);
-   
-   
+    m_autoChooser.addOption("RED - FOUR PIECE STAGE SIDE", m_redCentreStageSideFourPieceAuto);
+    
     m_autoChooser.addOption("BLUE - THREE PIECE CENTRE CLEAR SIDE", m_blueCentreClearSideThreePieceAuto);
     m_autoChooser.addOption("BLUE - THREE PIECE CENTRE STAGE SIDE", m_blueCentreStageSideThreePieceAuto);
+
+    m_autoChooser.addOption("RED - THREE PIECE CENTRE CLEAR SIDE", m_redCentreClearSideThreePieceAuto);
+    m_autoChooser.addOption("RED - THREE PIECE CENTRE STAGE SIDE", m_redCentreStageSideThreePieceAuto);
 
     m_autoChooser.addOption("BLUE - TWO PIECE CENTRE CENTRE SIDE", m_blueCentreCentreSideTwoPieceAuto);
     m_autoChooser.addOption("BLUE - TWO PIECE CENTRE CLEAR SIDE", m_blueCentreClearSideFourPieceAuto);
     m_autoChooser.addOption("BLUE - TWO PIECE CENTRE STAGE SIDE", m_blueCentreStageSideTwoPieceAuto);
+
+    m_autoChooser.addOption("RED - TWO PIECE CENTRE CENTRE SIDE", m_redCentreCentreSideTwoPieceAuto);
+    m_autoChooser.addOption("RED - TWO PIECE CENTRE CLEAR SIDE", m_redCentreClearSideTwoPieceAuto);
+    m_autoChooser.addOption("RED - TWO PIECE CENTRE STAGE SIDE", m_redCentreStageSideTwoPieceAuto);
+
+    m_autoChooser.addOption("DRIVE OUT", m_clearAuto);
+    m_autoChooser.addOption("SHOOT AND DRIVE OUT", m_shootAndClearAuto);
+    m_autoChooser.addOption("DO NOTHING AUTO", m_doNothingAuto);
+    m_autoChooser.addOption("TWO PIECE CENTRE NO VISION", m_twoPieceNoVision);
+
+    m_autoChooser.addOption("BLUE CENTRE GRAB", m_blueMiddlePickUp);
+
 
     Shuffleboard.getTab("Autonomous").add(m_autoChooser); 
     
@@ -213,7 +240,8 @@ public class RobotContainer {
           ),
 
           // new truckCommand(m_TruckLightSubsystem, 1), 
-          new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed), 
+          new ConveyerIntakeTillThirdSensor(m_ConveyerSubsystem), 
+          new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed),  
           new truckCommand(m_TruckLightSubsystem, 1.0)
 
       )
@@ -243,42 +271,23 @@ public class RobotContainer {
 
     
     controllerSecondary.axisGreaterThan(OperatorConstants.rightTriggerAxis, OperatorConstants.triggerThreshold).toggleOnFalse(new shootSetSpeedCommand(m_ShooterSubsystem, 0, 0)); 
-    controllerSecondary.axisGreaterThan(OperatorConstants.rightTriggerAxis, OperatorConstants.triggerThreshold).toggleOnTrue(new shooterVelocityCommand(m_ShooterSubsystem, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed)); 
+    controllerSecondary.axisGreaterThan(OperatorConstants.rightTriggerAxis, OperatorConstants.triggerThreshold).toggleOnTrue(
+        new ParallelCommandGroup(
+          new shooterVelocityCommand(m_ShooterSubsystem, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed), 
+          new ledRevedUpCommand(m_LightSubsystem, m_ShooterSubsystem, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, false)
+        )
+    ); 
 
     controllerSecondary.axisGreaterThan(OperatorConstants.leftTriggerAxis, OperatorConstants.triggerThreshold).toggleOnFalse(new shootSetSpeedCommand(m_ShooterSubsystem, 0, 0)); 
-    controllerSecondary.axisGreaterThan(OperatorConstants.leftTriggerAxis, OperatorConstants.triggerThreshold).toggleOnTrue(new shooterVelocityCommand(m_ShooterSubsystem, ShooterConstants.ampTopMotorSpeed, ShooterConstants.ampBottomMotorSpeed)); 
+    controllerSecondary.axisGreaterThan(OperatorConstants.leftTriggerAxis, OperatorConstants.triggerThreshold).toggleOnTrue(
+        new ParallelCommandGroup(
+          new shooterVelocityCommand(m_ShooterSubsystem, ShooterConstants.ampTopMotorSpeed, ShooterConstants.ampBottomMotorSpeed), 
+          new ledRevedUpCommand(m_LightSubsystem, m_ShooterSubsystem, ShooterConstants.ampTopMotorSpeed, ShooterConstants.ampBottomMotorSpeed, false)
+        )
+    ); 
     
     BUTTON_X_SECONDARY.onTrue(
-      new shooterVelocityCommand(m_ShooterSubsystem, ShooterConstants.speakerAutoTopMotorSpeed, ShooterConstants.speakerAutoBottomMotorSpeed)
-    ); 
 
-    BUTTON_X_SECONDARY.onFalse(
-      new shootSetSpeedCommand(m_ShooterSubsystem, 0, 0)
-    ); 
-
-
-
-    
-
-    // controllerSecondary.axisGreaterThan(OperatorConstants.leftTriggerAxis, OperatorConstants.triggerThreshold).toggleOnFalse(
-    //   new ParallelCommandGroup(
-    //     new shootSetSpeedCommand(m_ShooterSubsystem, 0, 0), 
-    //     new ledRevedUpCommand(m_LightSubsystem, m_ShooterSubsystem, 0, 0, true)
-    //   )
-    // ); 
-
-    // controllerSecondary.axisGreaterThan(OperatorConstants.leftTriggerAxis, OperatorConstants.triggerThreshold).toggleOnTrue(
-    //   new ParallelCommandGroup(
-    //     new shootSetSpeedCommand(m_ShooterSubsystem, ShooterConstants.ampTopMotorSpeed, ShooterConstants.ampBottomMotorSpeed), 
-    //     new ledRevedUpCommand(m_LightSubsystem, m_ShooterSubsystem, ShooterConstants.ampTopMotorSpeed, ShooterConstants.ampBottomMotorSpeed, false)
-    //   )
-    // ); 
-    
-
-
-
-    BUTTON_Y_SECONDARY.onTrue(
-      
       new SequentialCommandGroup(
 
         new ParallelRaceGroup(
@@ -293,7 +302,38 @@ public class RobotContainer {
 
         ), 
 
-        new shooterVelocityCommand(m_ShooterSubsystem, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed)
+        new ParallelCommandGroup(
+          new shooterVelocityCommand(m_ShooterSubsystem, ShooterConstants.speakerAutoTopMotorSpeed, ShooterConstants.speakerAutoBottomMotorSpeed), 
+          new ledRevedUpCommand(m_LightSubsystem, m_ShooterSubsystem, ShooterConstants.speakerAutoTopMotorSpeed, ShooterConstants.speakerAutoBottomMotorSpeed, false)
+        )
+    
+      )
+    ); 
+
+    BUTTON_X_SECONDARY.onFalse(
+      new shootSetSpeedCommand(m_ShooterSubsystem, 0, 0)
+    ); 
+
+    BUTTON_Y_SECONDARY.onTrue(
+      
+      new SequentialCommandGroup(
+
+        new ParallelRaceGroup(
+          new IntakeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed), 
+          new shooterVelocityCommand(m_ShooterSubsystem, 0, ShooterConstants.shooterHoldInSpeed), 
+
+          new SequentialCommandGroup(
+            new ConveyerIntakeTillThirdSensor(m_ConveyerSubsystem), 
+            new ConveyerTimeCommand(m_ConveyerSubsystem, conveyerConstants.conveyerInSpeed, 650), 
+            new ConveyOutTillSensorThree(m_ConveyerSubsystem)
+          )
+          
+        ), 
+
+        new ParallelCommandGroup(
+          new shooterVelocityCommand(m_ShooterSubsystem, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed), 
+          new ledRevedUpCommand(m_LightSubsystem, m_ShooterSubsystem, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, false)
+        )
       )
 
     ); 
@@ -333,11 +373,6 @@ public class RobotContainer {
     ); 
 
     BUTTON_LB_SECONDARY.onFalse(
-      // new ParallelCommandGroup(
-      //   new IntakeCommand(m_IntakeSubsystem, 0)
-      //   .alongWith(new ConveyerCommand(m_ConveyerSubsystem, 0))
-      //  )
-
       new ParallelCommandGroup(
         new IntakeCommand(m_IntakeSubsystem, 0), 
         new ConveyerCommand(m_ConveyerSubsystem, 0)
@@ -360,7 +395,11 @@ public class RobotContainer {
 
         ), 
 
-        new shooterVelocityCommand(m_ShooterSubsystem, ShooterConstants.ampTopMotorSpeed, ShooterConstants.ampBottomMotorSpeed)
+        new ParallelCommandGroup(
+          new shooterVelocityCommand(m_ShooterSubsystem, ShooterConstants.ampTopMotorSpeed, ShooterConstants.ampBottomMotorSpeed), 
+          new ledRevedUpCommand(m_LightSubsystem, m_ShooterSubsystem, ShooterConstants.ampTopMotorSpeed, ShooterConstants.ampBottomMotorSpeed, false)
+        )
+    
       )
 
     ); 
@@ -369,41 +408,21 @@ public class RobotContainer {
       new IntakeCommand(m_IntakeSubsystem, 0)
     ); 
 
+    BUTTON_X_PRIMARY.onTrue(
+      // new photonVisionDriveAndAlignCommand(m_PhotonvisionSubsystem, m_DriveSubsystem, 0, 0, false, 6)
+      // new photonVisionAlignToTagCommand(m_PhotonvisionSubsystem, m_DriveSubsystem, 0, 0, false)
+      new ParallelCommandGroup(
+        new visionSweepCommand(m_VisionSubsystem, 1, false, VisionConstants.roughAlignmentTolerance), 
+        new truckCommand(m_TruckLightSubsystem, 1.0)
+      )
 
-
+    ); 
+    
 
     BUTTON_X_PRIMARY.onFalse(
-      new photonVisionDriveAndAlignCommand(m_PhotonvisionSubsystem, m_DriveSubsystem, 0, 0, true, 6)
+      new visionSweepCommand(m_VisionSubsystem, 1, true, VisionConstants.roughAlignmentTolerance)
+      // new photonVisionAlignToTagCommand(m_PhotonvisionSubsystem, m_DriveSubsystem, 0, 0, true)
     ); 
-
-    BUTTON_X_PRIMARY.onTrue(
-      new photonVisionDriveAndAlignCommand(m_PhotonvisionSubsystem, m_DriveSubsystem, 0, 0, false, 6)
-    ); 
-    
-
-    // ); 
-
-    
-    // BUTTON_X_PRIMARY.onFalse(
-    //   // new ParallelDeadlineGroup(       
-
-    //       new SequentialCommandGroup(
-    //          new photonVisionDriveAndAlignCommand(m_PhotonvisionSubsystem, m_DriveSubsystem, 0, 0, true)
-    //          .andThen(new photonVisionDriveCommand(m_PhotonvisionSubsystem, m_DriveSubsystem, 5, 0, true))
-    //          .andThen(new photonVisionDriveAndAlignCommand(m_PhotonvisionSubsystem, m_DriveSubsystem, 0, 0, true))
-    //         //  .andThen(new autoDriveForwardSetDistance(m_DriveSubsystem, 0, 0))
-
-    //         // new autoTurnForTime(m_DriveSubsystem, 0, 1), 
-    //       ) 
-
-    //       .andThen(new autoDriveForwardSetDistance(m_DriveSubsystem, 0, 0))
-    //       .andThen(new shooterVelocityCommand(m_ShooterSubsystem, 0, 0))
-    //       .andThen(new ConveyerCommand(m_ConveyerSubsystem, 0))
-    //       .andThen(new intakeTimeCommand(m_IntakeSubsystem, IntakeConstants.intakeSpeed, 0, 0))
-
-
-
-    // ); 
 
     BUTTON_A_PRIMARY.onTrue(
       new photonVisionDriveCommand(m_PhotonvisionSubsystem, m_DriveSubsystem, 0, 0, false)
@@ -416,23 +435,20 @@ public class RobotContainer {
 
 
     BUTTON_B_PRIMARY.onTrue(
-      // new autoTurnCommand(m_DriveSubsystem, -90, false)
-      // new autoTurnOnHeadingCommand(m_DriveSubsystem, 90)
       new truckCommand(m_TruckLightSubsystem, 1.0)
     ); 
 
     BUTTON_B_PRIMARY.onFalse(
-      // new autoTurnOnHeadingCommand(m_DriveSubsystem, 0)
-      // new autoTurnCommand(m_DriveSubsystem, 0, true)
       new truckCommand(m_TruckLightSubsystem, 0)
     ); 
 
+    BUTTON_A_SECONDARY.onTrue(
+      new shooterVelocityCommand(m_ShooterSubsystem, -ShooterConstants.ampTopMotorSpeed, -ShooterConstants.ampBottomMotorSpeed)
+    ); 
 
-    // controllerPrimary.axisGreaterThan(OperatorConstants.rightTriggerAxis, OperatorConstants.triggerThreshold).toggleOnFalse(new DriveTurnCommand(m_DriveSubsystem, DriveConstants.rightDirection, true)); 
-    // controllerPrimary.axisGreaterThan(OperatorConstants.rightTriggerAxis, OperatorConstants.triggerThreshold).toggleOnTrue(new DriveTurnCommand(m_DriveSubsystem, DriveConstants.rightDirection, false)); 
-
-    // controllerPrimary.axisGreaterThan(OperatorConstants.leftTriggerAxis, OperatorConstants.triggerThreshold).toggleOnFalse(new DriveTurnCommand(m_DriveSubsystem, DriveConstants.leftDirection, true)); 
-    // controllerPrimary.axisGreaterThan(OperatorConstants.leftTriggerAxis, OperatorConstants.triggerThreshold).toggleOnTrue(new DriveTurnCommand(m_DriveSubsystem, DriveConstants.leftDirection, false)); 
+    BUTTON_A_SECONDARY.onFalse(
+      new shooterVelocityCommand(m_ShooterSubsystem, 0, 0)
+    ); 
   }
 
   /**

@@ -53,7 +53,7 @@ public final class Constants {
     public static final double driveSlew = 5; 
     public static final double turnSlew = 2;
     
-    public static final double driveSlowSpeed = 0.75; 
+    public static final double driveSlowSpeed = 0.85; 
     public static final double driveFastSpeed = 1; 
 
     public static final double turnSlowSpeed = 0.5; 
@@ -73,7 +73,7 @@ public final class Constants {
     // public static final double autoDriveForwardAndIntakeDistance = VisionConstants.desiredApproachDistance + 3; 
     public static final double autoDriveForwardAndIntakeDistance = 35; 
 
-    public static final double autoDriveSpeed = 0.60; 
+    public static final double autoDriveSpeed = 0.70; 
     public static final double autoDriveLimelightSpeed = 0.45; 
   }
 
@@ -94,9 +94,12 @@ public final class Constants {
     public static final double speakerTopMotorSpeed = -5700*0.80; 
     public static final double speakerBottomMotorSpeed = 5700*0.80; 
 
-        
+    // public static final double speakerTopMotorSpeed = -5700*0.10; 
+    // public static final double speakerBottomMotorSpeed = 5700*0.10; 
+
+    // DISTANCE SHOT
     public static final double speakerAutoTopMotorSpeed = -5700*0.75; 
-    public static final double speakerAutoBottomMotorSpeed = 5700*0.35; 
+    public static final double speakerAutoBottomMotorSpeed = 5700*0.40; 
   
   
     public static final double speakerTopMotorSpeedAutoLine = -5700*0.9; 
@@ -141,6 +144,8 @@ public final class Constants {
     public static final double desiredApproachDistance = 40; 
 
     public static final double limelightTurnSpeedLimit = 0.30; 
+
+    public static int ambientPipeline = 1; 
   }
 
 
@@ -220,8 +225,8 @@ public final class Constants {
   }
 
   public static class autoConstants{
-    public static int nonLightNotePipeline = 0; 
-    public static int withLightNotePipeline = 1; 
+    // public static int nonLightNotePipeline = 0; 
+
 
     public static double gyroTurnMaxSpeed = 0.6; 
   }

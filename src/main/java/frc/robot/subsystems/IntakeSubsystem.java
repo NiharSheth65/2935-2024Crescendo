@@ -28,6 +28,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     intakeEncoder.setPosition(0);
 
+    intakeMotor.burnFlash();
+
   }
 
   @Override

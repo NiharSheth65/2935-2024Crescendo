@@ -11,14 +11,15 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
-public class visionTurnCommand extends Command {
+public class visionSweepCommand extends Command {
 
   private VisionSubsystem VISION_SUBSYSTEM; 
-  private DriveSubsystem DRIVE_SUBSYSTEM; 
 
   private PIDController visionPID; 
   
-  boolean turnBool; 
+  boolean endCommand; 
+  boolean targetFound; 
+
   double gyroValue; 
   double error; 
 
@@ -36,12 +37,9 @@ public class visionTurnCommand extends Command {
 
   double turnTolerance; 
 
-  double initTime;
-
-  /** Creates a new visionTurnCommand. */
-  public visionTurnCommand(DriveSubsystem drive, VisionSubsystem vision, int pipeline, boolean turn, double tolerance) {
-    
-    this.DRIVE_SUBSYSTEM = drive; 
+  /** Creates a new visionSweepCommand. */
+  public visionSweepCommand(VisionSubsystem vision, int pipeline, boolean end, double tolerance) {
+    // Use addRequirements() here to declare subsystem dependencies.
     this.VISION_SUBSYSTEM = vision; 
     // Use addRequirements() here to declare subsystem dependencies.
     
@@ -60,30 +58,26 @@ public class visionTurnCommand extends Command {
 
 
     this.visionPID = new PIDController(kp, ki, kd); 
-    this.turnBool = turn; 
+    this.endCommand = end;  
     this.setPipelineNumber = pipeline;
     this.turnTolerance = tolerance;  
 
-    addRequirements(DRIVE_SUBSYSTEM);
     addRequirements(VISION_SUBSYSTEM);
   }
- 
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
     visionPID.reset();
     tvMissedCoutner = 0; 
     VISION_SUBSYSTEM.setPipeline(setPipelineNumber);
     VISION_SUBSYSTEM.setLED(0);
-    initTime = System.currentTimeMillis(); 
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
-    int numberOfTargets = (int) VISION_SUBSYSTEM.limelighTableRead().getEntry("tv").getDouble(0);
+     int numberOfTargets = (int) VISION_SUBSYSTEM.limelighTableRead().getEntry("tv").getDouble(0);
 
     if(numberOfTargets > 0){
       double bestTargetArea = 0.0; 
@@ -105,62 +99,36 @@ public class visionTurnCommand extends Command {
 
     if(tvValue == 0){
       tvMissedCoutner++;
+      targetFound = false; 
     }
 
     else{
       tvMissedCoutner = 0;
       lastMeasuredValue = VISION_SUBSYSTEM.tx(); 
+      targetFound = true; 
     }
 
-    double outputSpeed = visionPID.calculate(measuredValue, targetValue); 
+    SmartDashboard.putBoolean("target found", targetFound); 
 
-    if(outputSpeed > VisionConstants.limelightTurnSpeedLimit){
-      outputSpeed = VisionConstants.limelightTurnSpeedLimit; 
-    }
-
-    else if(outputSpeed < -VisionConstants.limelightTurnSpeedLimit){
-      outputSpeed = -VisionConstants.limelightTurnSpeedLimit; 
-    }
-
-    DRIVE_SUBSYSTEM.setTank(outputSpeed, -outputSpeed);
-
-    error = measuredValue - targetValue; 
-    
-    SmartDashboard.putNumber("align error", error); 
-    SmartDashboard.putNumber("align speed", outputSpeed); 
-    SmartDashboard.putNumber("number of targets", numberOfTargets); 
-    boolean complete = false; 
-
-    if(Math.abs(error) < 0.25){
-      complete = true; 
-      // turnBool = true; 
-    }
-    else{
-      complete = false;
-    }
-
-    SmartDashboard.putBoolean("alignment", complete); 
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    
-    if(turnBool == true){
+    // if(targetFound == true){
+    //   return true; 
+    // }
+
+    if(endCommand == true){
       return true; 
     }
     
-    else if(Math.abs(error) < turnTolerance && tvMissedCoutner == 0){
-      return true; 
-    }
-    
-    else if(Math.abs(System.currentTimeMillis() - initTime) > 4000){
-      return true;
-    }
     else{
       return false; 
     }

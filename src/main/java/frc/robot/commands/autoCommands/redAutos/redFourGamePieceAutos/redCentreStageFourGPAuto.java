@@ -24,12 +24,14 @@ import frc.robot.commands.intakeCommands.IntakeCommand;
 import frc.robot.commands.ledCommands.truckCommand;
 import frc.robot.commands.photonvisionCommands.photonVisionDriveAndAlignCommand;
 import frc.robot.commands.photonvisionCommands.photonVisionLookForCommand;
+import frc.robot.commands.shooterCommands.shooterHasReachedVelocityCommand;
 import frc.robot.commands.shooterCommands.shooterVelocityCommand;
 import frc.robot.commands.visionCommands.visionDriveCommand;
 import frc.robot.commands.visionCommands.visionTurnCommand;
 import frc.robot.subsystems.ConveyerSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LightSubsystem;
 import frc.robot.subsystems.PhotonvisionSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TruckLightSubsystem;
@@ -40,7 +42,7 @@ import frc.robot.subsystems.VisionSubsystem;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class redCentreStageFourGPAuto extends SequentialCommandGroup {
   /** Creates a new redAwesome. */
-  public redCentreStageFourGPAuto(DriveSubsystem drive, VisionSubsystem vision, IntakeSubsystem intake, ShooterSubsystem shooter, ConveyerSubsystem conveyer, PhotonvisionSubsystem photon, TruckLightSubsystem truck) {
+  public redCentreStageFourGPAuto(DriveSubsystem drive, VisionSubsystem vision, IntakeSubsystem intake, ShooterSubsystem shooter, ConveyerSubsystem conveyer, PhotonvisionSubsystem photon, TruckLightSubsystem truck, LightSubsystem led) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
@@ -50,6 +52,8 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
         new shooterVelocityCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed), 
 
         new SequentialCommandGroup(
+
+          new shooterHasReachedVelocityCommand(led, shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, false), 
           // NOTE 1 ******************************************
           new ParallelRaceGroup(
                         
@@ -86,7 +90,7 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
                 .andThen(
                   new ParallelDeadlineGroup(
                     new conveyTillFirstSensor(conveyer), 
-                    new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance, DriveConstants.autoDriveLimelightSpeed),
+                    new autoDriveForwardSetDistance(drive, DriveConstants.autoDriveForwardAndIntakeDistance + 5, DriveConstants.autoDriveLimelightSpeed),
                     new IntakeCommand(intake, IntakeConstants.intakeSpeed)
                
                   )
@@ -107,8 +111,7 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
                           
                         ), 
 
-              
-
+                        new autoDriveForwardSetDistance(drive, -7, DriveConstants.autoDriveLimelightSpeed),
                         new conveyerTillSensorCleared(conveyer)
                       )
                   )
@@ -196,8 +199,9 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
               new SequentialCommandGroup(
                 // turn to find piece 
                 new autoDriveForwardSetDistance(drive, 6, DriveConstants.autoDriveSpeed), 
-                new autoTurnCommand(drive, 55, false), 
-                // new autoDriveForwardSetDistance(drive, 20, DriveConstants.autoDriveSpeed), 
+                new autoTurnCommand(drive, 63, false), 
+                new autoDriveForwardSetDistance(drive, 20, DriveConstants.autoDriveSpeed), 
+             
                 // find piece 
                 new ParallelDeadlineGroup(
                       new SequentialCommandGroup(
@@ -217,7 +221,7 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
                 ), 
 
                 new ParallelDeadlineGroup(
-                  new autoDriveForwardSetDistance(drive, -10, DriveConstants.autoDriveSpeed), 
+                  new autoDriveForwardSetDistance(drive, -8, DriveConstants.autoDriveSpeed), 
                   new ConveyerIntakeTillThirdSensor(conveyer), 
                   new IntakeCommand(intake, IntakeConstants.intakeSpeed)
                 ), 
@@ -237,7 +241,6 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
                   new autoDriveForwardSetDistance(drive, -55, DriveConstants.autoDriveSpeed),
                   new IntakeCommand(intake, IntakeConstants.intakeSpeed), 
                   new ConveyerIntakeTillThirdSensor(conveyer)
-     
                 ), 
 
                 new conveyerTillSensorCleared(conveyer)
@@ -251,3 +254,9 @@ public class redCentreStageFourGPAuto extends SequentialCommandGroup {
     );
   }
 }
+
+
+// hunt note is one command 
+
+
+// note 1 
