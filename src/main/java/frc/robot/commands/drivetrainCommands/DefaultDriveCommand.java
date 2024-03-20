@@ -73,13 +73,13 @@ public class DefaultDriveCommand extends Command {
     }
 
     if(joy.getRawButton(OperatorConstants.BUTTON_LB_PORT)){
-      turnSpeed = DriveConstants.turnFastSpeed; 
+      turnSpeed = DriveConstants.turnSlowSpeed; 
       dSlew = 10; 
       tSlew = 10; 
     }
 
     else{
-      turnSpeed = DriveConstants.turnSlowSpeed; 
+      turnSpeed = DriveConstants.turnFastSpeed; 
       dSlew = DriveConstants.driveSlew; 
       tSlew = DriveConstants.turnSlew; 
     }

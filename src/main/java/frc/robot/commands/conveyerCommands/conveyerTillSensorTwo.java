@@ -8,14 +8,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.conveyerConstants;
 import frc.robot.subsystems.ConveyerSubsystem;
 
-public class conveyTillFirstSensor extends Command {
+public class conveyerTillSensorTwo extends Command {
 
-  private ConveyerSubsystem CONVEYER_SUBSYSTEM;
+  private ConveyerSubsystem CONVEYER_SUBSYSTEM; 
+
   private double initTime; 
-  
-  /** Creates a new conveyTillFirstSensor. */
-  public conveyTillFirstSensor(ConveyerSubsystem conveyer) {
-    // Use addRequirements() here to declare subsystem dependencies.
+  private double initTimeInitTime; 
+
+
+  /** Creates a new conveyerTillSensorTwo. */
+  public conveyerTillSensorTwo(ConveyerSubsystem conveyer) {
+    // Use addRequirements() here to declare subsystem dependencies.\
+       // Use addRequirements() here to declare subsystem dependencies.
     this.CONVEYER_SUBSYSTEM = conveyer; 
     addRequirements(CONVEYER_SUBSYSTEM);
   }
@@ -23,13 +27,21 @@ public class conveyTillFirstSensor extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    initTime = System.currentTimeMillis(); 
+    initTimeInitTime = System.currentTimeMillis();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     CONVEYER_SUBSYSTEM.setConveyer(conveyerConstants.conveyerInSpeed);
+
+    if(CONVEYER_SUBSYSTEM.intakeSwitchTwoValue() == true || CONVEYER_SUBSYSTEM.intakeSwitchThreeValue() == true){
+      initTime = System.currentTimeMillis(); 
+    }
+
+    else{
+      initTime = initTimeInitTime; 
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -41,7 +53,7 @@ public class conveyTillFirstSensor extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(CONVEYER_SUBSYSTEM.intakeSwitchOneValue() == true){
+    if(CONVEYER_SUBSYSTEM.intakeSwitchTwoValue() == true){
       return true; 
     }
 

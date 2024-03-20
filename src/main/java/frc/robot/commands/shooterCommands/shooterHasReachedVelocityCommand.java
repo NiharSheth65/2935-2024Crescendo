@@ -2,13 +2,13 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.ledCommands;
+package frc.robot.commands.shooterCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.LightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class ledRevedUpCommand extends Command {
+public class shooterHasReachedVelocityCommand extends Command {
 
   private LightSubsystem LIGHT_SUBSYSTEM; 
   private ShooterSubsystem SHOOTER_SUBSYSTEM;
@@ -23,8 +23,13 @@ public class ledRevedUpCommand extends Command {
   private double shooterBottomPresentVelocity; 
   private double shooterTopPresentVelocity; 
 
-  /** Creates a new ledRevedUpCommand. */
-  public ledRevedUpCommand(LightSubsystem led, ShooterSubsystem shooter, double targetTopVelocity, double targetBottomVelocity, boolean end) {
+  private boolean hasReached; 
+
+  private double initTime; 
+
+
+  /** Creates a new shooterHasReachedVelocityCommand. */
+  public shooterHasReachedVelocityCommand(LightSubsystem led, ShooterSubsystem shooter, double targetTopVelocity, double targetBottomVelocity, boolean end) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.LIGHT_SUBSYSTEM = led; 
     this.SHOOTER_SUBSYSTEM = shooter; 
@@ -40,12 +45,13 @@ public class ledRevedUpCommand extends Command {
   public void initialize() {
     shooterBottomPresentVelocity = 0; 
     shooterTopPresentVelocity = 0; 
+    hasReached = false;
+    initTime = System.currentTimeMillis(); 
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
     shooterTopPresentVelocity = SHOOTER_SUBSYSTEM.bottomMotorVelocity(); 
     shooterBottomPresentVelocity = SHOOTER_SUBSYSTEM.topMotorVelocity(); 
 
@@ -53,12 +59,14 @@ public class ledRevedUpCommand extends Command {
       red = 0;  
       green = 255; 
       blue = 0; 
+      hasReached = true; 
     }
 
     else{
       red = 200;  
       green = 0; 
       blue = 200; 
+      hasReached = false; 
     }
 
     LIGHT_SUBSYSTEM.setOneColour(red, blue, green);
@@ -72,6 +80,14 @@ public class ledRevedUpCommand extends Command {
   @Override
   public boolean isFinished() {
     if(endCommand == true){
+      return true; 
+    }
+
+    else if(hasReached == true){
+      return true; 
+    }
+
+    else if(Math.abs(System.currentTimeMillis() - initTime) > 3000){
       return true; 
     }
 

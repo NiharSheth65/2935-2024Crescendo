@@ -51,6 +51,8 @@ public class visionDriveCommand extends Command {
   SlewRateLimiter drive_Limiter = new SlewRateLimiter(dSlew); 
   SlewRateLimiter turn_Limiter = new SlewRateLimiter(tSlew); 
 
+  private double initTime; 
+
   /** Creates a new visionDriveCommand. */
   public visionDriveCommand(DriveSubsystem drive, VisionSubsystem vision, boolean cancel, int pipelineNumber, double setPoint) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -101,6 +103,7 @@ public class visionDriveCommand extends Command {
     tvMissedCounter = 0; 
     VISION_SUBSYSTEM.setPipeline(setPipelineNumber);
     VISION_SUBSYSTEM.setLED(0);
+    initTime = System.currentTimeMillis(); 
 
   }
 
@@ -170,6 +173,10 @@ public class visionDriveCommand extends Command {
     }
 
     else if(Math.abs(driveSetPoint - distanceFromLimelightToGoalInches) < 2 && tvMissedCounter == 0){
+      return true; 
+    }
+
+    else if(Math.abs(System.currentTimeMillis() - initTime) > 4500){
       return true; 
     }
 

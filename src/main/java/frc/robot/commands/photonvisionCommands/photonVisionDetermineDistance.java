@@ -4,7 +4,6 @@
 
 package frc.robot.commands.photonvisionCommands;
 
-import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -18,7 +17,7 @@ import frc.robot.Constants.photonVisionConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.PhotonvisionSubsystem;
 
-public class photonVisionDriveCommand extends Command {
+public class photonVisionDetermineDistance extends Command {
 
   private DriveSubsystem DRIVE_SUBSYSTEM; 
   private PhotonvisionSubsystem PHOTON_SUBSYSTEM; 
@@ -28,11 +27,11 @@ public class photonVisionDriveCommand extends Command {
 
   private final String VISION_PREFIX = "Vision/"; 
 
-  private PIDController driveController; 
+  // private PIDController driveController; 
 
-  private double driveKP = 1.0;  
-  private double driveKI = 0.0; 
-  private double driveKD = 0;
+  // private double driveKP = 1.0;  
+  // private double driveKI = 0.0; 
+  // private double driveKD = 0;
 
   double pitch; 
   double driveSpeed; 
@@ -48,18 +47,19 @@ public class photonVisionDriveCommand extends Command {
   private int targetId;
   private double bestTargetRange; 
 
-  private SlewRateLimiter driveLimiter = new SlewRateLimiter(DriveConstants.driveSlew); 
+  private int rangeCounter; 
+  private double totalDistance; 
 
-  /** Creates a new photonVisionDriveCommand. */
-  public photonVisionDriveCommand(PhotonvisionSubsystem photon, DriveSubsystem drive, boolean endCommand, int desiredTagId) {
+  // private SlewRateLimiter driveLimiter = new SlewRateLimiter(DriveConstants.driveSlew); 
+  /** Creates a new photonVisionDetermineDistance. */
+  public photonVisionDetermineDistance(PhotonvisionSubsystem photon, DriveSubsystem drive, boolean endCommand, int desiredTagId) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.DRIVE_SUBSYSTEM = drive; 
     this.PHOTON_SUBSYSTEM = photon; 
     this.end = endCommand; 
     this.targetId = desiredTagId; 
 
-
-    this.driveController = new PIDController(driveKP, driveKI, driveKD); 
+    // this.driveController = new PIDController(driveKP, driveKI, driveKD); 
 
     addRequirements(DRIVE_SUBSYSTEM);
     addRequirements(PHOTON_SUBSYSTEM);
@@ -68,15 +68,16 @@ public class photonVisionDriveCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    driveController.reset(); 
+    // driveController.reset(); 
     pitch = 0; 
-
+    rangeCounter = 0; 
     initInitTime = System.currentTimeMillis(); 
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    
     final double CAMERA_HEIGHT_METERS = (photonVisionConstants.cameraHeight);
     final double TARGET_HEIGHT_METERS = (photonVisionConstants.speakerHeight);
     // Angle between horizontal and the camera.
@@ -95,6 +96,7 @@ public class photonVisionDriveCommand extends Command {
       for (var target : result.getTargets()) {
           if (target.getFiducialId() == targetId) {
               bestTarget = target;
+              rangeCounter++; 
               break; // Stop searching once we've found our target
           }
       }
@@ -113,6 +115,7 @@ public class photonVisionDriveCommand extends Command {
                                     Units.degreesToRadians(pitch));
         
         bestTargetRange = range; 
+        range += totalDistance; 
      }
 
      else{
@@ -125,19 +128,19 @@ public class photonVisionDriveCommand extends Command {
     }
 
 
-    driveSpeed = driveController.calculate(range, GOAL_RANGE_METERS); 
+    // driveSpeed = driveController.calculate(range, GOAL_RANGE_METERS); 
 
-    if(driveSpeed > photonVisionConstants.photonMaxDriveSpeed){
-      driveSpeed = photonVisionConstants.photonMaxDriveSpeed; 
-    }
+    // if(driveSpeed > photonVisionConstants.photonMaxDriveSpeed){
+    //   driveSpeed = photonVisionConstants.photonMaxDriveSpeed; 
+    // }
 
-    else if(driveSpeed < -photonVisionConstants.photonMaxDriveSpeed){
-      driveSpeed = -photonVisionConstants.photonMaxDriveSpeed; 
-    }
+    // else if(driveSpeed < -photonVisionConstants.photonMaxDriveSpeed){
+    //   driveSpeed = -photonVisionConstants.photonMaxDriveSpeed; 
+    // }
 
     SmartDashboard.putNumber("distance", range); 
     SmartDashboard.putNumber("drive speed", driveSpeed); 
-    DRIVE_SUBSYSTEM.setTank(driveLimiter.calculate(driveSpeed), driveLimiter.calculate(driveSpeed));
+    // DRIVE_SUBSYSTEM.setTank(driveLimiter.calculate(driveSpeed), driveLimiter.calculate(driveSpeed));
 
   }
 
@@ -155,10 +158,14 @@ public class photonVisionDriveCommand extends Command {
     }
 
 
-    else if(Math.abs(GOAL_RANGE_METERS - bestTargetRange) < 0.15){
+    // else if(Math.abs(GOAL_RANGE_METERS - bestTargetRange) < 0.15){
+    //   return true; 
+    // }
+
+    else if(rangeCounter > 10){
+      SmartDashboard.putNumber("average range", (totalDistance/rangeCounter)); 
       return true; 
     }
-
 
     else if(Math.abs(System.currentTimeMillis() - initTime) > 1000){
       return true; 

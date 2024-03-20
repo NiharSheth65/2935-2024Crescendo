@@ -53,7 +53,7 @@ public class shooterVelocityCommand extends Command {
     // topShooterSpeed = 0; 
     // bottomShooterSpeed = 0; 
     SHOOTER_SUBSYSTEM.setShooterVelocityMode();
-    SHOOTER_SUBSYSTEM.setRampRate(2);
+    SHOOTER_SUBSYSTEM.setRampRate(1);
     SHOOTER_SUBSYSTEM.setTopPIDF(topShooterKp, topShooterKi, topShooterKd, topShooterKFf);
     SHOOTER_SUBSYSTEM.setBottomPIDF(bottomShooterKp, bottomShooterKi, bottomShooterKd, bottomShooterKFf);
 
