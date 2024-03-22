@@ -6,11 +6,14 @@ package frc.robot.commands.photonvisionCommands;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.photonVisionConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.PhotonvisionSubsystem;
@@ -25,39 +28,38 @@ public class photonVisionDriveCommand extends Command {
 
   private final String VISION_PREFIX = "Vision/"; 
 
-  private PIDController forwardController; 
-  private PIDController turnController; 
+  private PIDController driveController; 
 
-  private double driveKP = photonVisionConstants.driveKp; 
-  private double driveKI = photonVisionConstants.driveKi; 
-  private double driveKD = photonVisionConstants.driveKd;
-  
-  private double turnKP = photonVisionConstants.turnKp; 
-  private double turnKI = photonVisionConstants.turnKi; 
-  private double turnKD = photonVisionConstants.turnKd;
-  
-  double yaw; 
-  double rotationSpeed; 
-  double forwardSpeed; 
+  private double driveKP = 1.0;  
+  private double driveKI = 0.0; 
+  private double driveKD = 0;
 
-  boolean end; 
+  double pitch; 
+  double driveSpeed; 
 
+  private boolean end; 
 
-  double range; 
+  private double range; 
+  private double GOAL_RANGE_METERS; 
 
-  
+  private double initTime; 
+  private double initInitTime; 
+
+  private int targetId;
+  private double bestTargetRange; 
+
+  private SlewRateLimiter driveLimiter = new SlewRateLimiter(DriveConstants.driveSlew); 
+
   /** Creates a new photonVisionDriveCommand. */
-  public photonVisionDriveCommand(PhotonvisionSubsystem photon, DriveSubsystem drive, double distanceTo, double angleTo, boolean endCommand) {
+  public photonVisionDriveCommand(PhotonvisionSubsystem photon, DriveSubsystem drive, boolean endCommand, int desiredTagId) {
     // Use addRequirements() here to declare subsystem dependencies.
-    this.distanceSetpoint = distanceTo; 
-    this.alignmentSetpoint = angleTo; 
     this.DRIVE_SUBSYSTEM = drive; 
     this.PHOTON_SUBSYSTEM = photon; 
     this.end = endCommand; 
+    this.targetId = desiredTagId; 
 
 
-    this.forwardController = new PIDController(driveKP, driveKI, driveKD); 
-    this.turnController = new PIDController(turnKP, turnKI, turnKD); 
+    this.driveController = new PIDController(driveKP, driveKI, driveKD); 
 
     addRequirements(DRIVE_SUBSYSTEM);
     addRequirements(PHOTON_SUBSYSTEM);
@@ -66,10 +68,10 @@ public class photonVisionDriveCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    forwardController.reset();
-    turnController.reset();
-    rotationSpeed = 0; 
-    yaw = 0; 
+    driveController.reset(); 
+    pitch = 0; 
+
+    initInitTime = System.currentTimeMillis(); 
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -77,54 +79,65 @@ public class photonVisionDriveCommand extends Command {
   public void execute() {
     final double CAMERA_HEIGHT_METERS = (photonVisionConstants.cameraHeight);
     final double TARGET_HEIGHT_METERS = (photonVisionConstants.speakerHeight);
-
     // Angle between horizontal and the camera.
     final double CAMERA_PITCH_RADIANS = (photonVisionConstants.cameraMountAngle);
 
-    // How far from the target we want to be
-    final double GOAL_RANGE_METERS = Units.feetToMeters(distanceSetpoint);
-
-    // Change this to match the name of your camera
-    // PID constants should be tuned per robot
+    GOAL_RANGE_METERS = Units.feetToMeters(3);
 
     var result = PHOTON_SUBSYSTEM.getLatestResult(); 
 
  
     if(result.hasTargets()){
-      range =
-                        PhotonUtils.calculateDistanceToTargetMeters(
-                                CAMERA_HEIGHT_METERS,
-                                TARGET_HEIGHT_METERS,
-                                CAMERA_PITCH_RADIANS,
-                                Units.degreesToRadians(result.getBestTarget().getPitch()));
 
-                // Use this range as the measurement we give to the PID controller.
-                // -1.0 required to ensure positive PID controller effort _increases_ range
-                forwardSpeed = forwardController.calculate(range, GOAL_RANGE_METERS);
-              SmartDashboard.putNumber(VISION_PREFIX + "photon-distance", range); 
+      PhotonTrackedTarget bestTarget = null;
+
+            // Loop through detected targets to find the AprilTag with the desired ID
+      for (var target : result.getTargets()) {
+          if (target.getFiducialId() == targetId) {
+              bestTarget = target;
+              break; // Stop searching once we've found our target
+          }
+      }
+
+      if (bestTarget != null) {
+        // Calculate alignment based on the target's position
+        pitch = bestTarget.getPitch();
+
+        initTime = System.currentTimeMillis();
+
+        range =
+                            PhotonUtils.calculateDistanceToTargetMeters(
+                                    CAMERA_HEIGHT_METERS,
+                                    TARGET_HEIGHT_METERS,
+                                    CAMERA_PITCH_RADIANS,
+                                    Units.degreesToRadians(pitch));
+        
+        bestTargetRange = range; 
+     }
+
+     else{
+      initTime = initInitTime;
+     }
+
+    }else{
+      range = GOAL_RANGE_METERS; 
+      initTime = initInitTime;
     }
 
-    else{
-      rotationSpeed = 0; 
-      forwardSpeed = 0;
+
+    driveSpeed = driveController.calculate(range, GOAL_RANGE_METERS); 
+
+    if(driveSpeed > photonVisionConstants.photonMaxDriveSpeed){
+      driveSpeed = photonVisionConstants.photonMaxDriveSpeed; 
     }
 
-    if(forwardSpeed > 0.35){
-      forwardSpeed = 0.35; 
+    else if(driveSpeed < -photonVisionConstants.photonMaxDriveSpeed){
+      driveSpeed = -photonVisionConstants.photonMaxDriveSpeed; 
     }
 
-    else if(forwardSpeed < -0.35){
-      forwardSpeed = -0.35;
-    }
-
-    else{
-      forwardSpeed = forwardSpeed; 
-    }
-
-    DRIVE_SUBSYSTEM.setTank(forwardSpeed*2.0, forwardSpeed*2.0);
-
-
-    SmartDashboard.putNumber(VISION_PREFIX + "photon-drive-speed", forwardSpeed); 
+    SmartDashboard.putNumber("distance", range); 
+    SmartDashboard.putNumber("drive speed", driveSpeed); 
+    DRIVE_SUBSYSTEM.setTank(driveLimiter.calculate(driveSpeed), driveLimiter.calculate(driveSpeed));
 
   }
 
@@ -141,7 +154,17 @@ public class photonVisionDriveCommand extends Command {
       return true; 
     }
 
-    else if(Math.abs(range) < 1.75){
+
+    else if(Math.abs(GOAL_RANGE_METERS - bestTargetRange) < 0.15){
+      return true; 
+    }
+
+
+    else if(Math.abs(System.currentTimeMillis() - initTime) > 1000){
+      return true; 
+    }
+
+    else if(Math.abs(System.currentTimeMillis() - initInitTime) > 3000){
       return true; 
     }
 

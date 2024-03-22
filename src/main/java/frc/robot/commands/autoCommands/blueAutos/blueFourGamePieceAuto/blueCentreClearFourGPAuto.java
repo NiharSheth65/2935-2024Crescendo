@@ -14,6 +14,7 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.conveyerConstants;
 import frc.robot.Constants.photonVisionConstants;
+import frc.robot.commands.autoCommandBlocks.autoHuntNoteCommand;
 import frc.robot.commands.autoCommands.autoTools.autoDriveForwardSetDistance;
 import frc.robot.commands.autoCommands.autoTools.autoTurnCommand;
 import frc.robot.commands.conveyerCommands.ConveyerCommand;
@@ -24,12 +25,14 @@ import frc.robot.commands.intakeCommands.IntakeCommand;
 import frc.robot.commands.ledCommands.truckCommand;
 import frc.robot.commands.photonvisionCommands.photonVisionDriveAndAlignCommand;
 import frc.robot.commands.photonvisionCommands.photonVisionLookForCommand;
+import frc.robot.commands.shooterCommands.shooterHasReachedVelocityCommand;
 import frc.robot.commands.shooterCommands.shooterVelocityCommand;
 import frc.robot.commands.visionCommands.visionDriveCommand;
 import frc.robot.commands.visionCommands.visionTurnCommand;
 import frc.robot.subsystems.ConveyerSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LightSubsystem;
 import frc.robot.subsystems.PhotonvisionSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TruckLightSubsystem;
@@ -40,7 +43,7 @@ import frc.robot.subsystems.VisionSubsystem;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class blueCentreClearFourGPAuto extends SequentialCommandGroup {
   /** Creates a new blueCentreClearFourGPAuto. */
-  public blueCentreClearFourGPAuto(DriveSubsystem drive, VisionSubsystem vision, IntakeSubsystem intake, ShooterSubsystem shooter, ConveyerSubsystem conveyer, PhotonvisionSubsystem photon, TruckLightSubsystem truck) {
+  public blueCentreClearFourGPAuto(DriveSubsystem drive, VisionSubsystem vision, IntakeSubsystem intake, ShooterSubsystem shooter, ConveyerSubsystem conveyer, PhotonvisionSubsystem photon, TruckLightSubsystem truck, LightSubsystem led) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
@@ -51,6 +54,7 @@ public class blueCentreClearFourGPAuto extends SequentialCommandGroup {
         new shooterVelocityCommand(shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed), 
 
         new SequentialCommandGroup(
+          new shooterHasReachedVelocityCommand(led, shooter, ShooterConstants.speakerTopMotorSpeed, ShooterConstants.speakerBottomMotorSpeed, false), 
           // NOTE 1 ******************************************
           new ParallelRaceGroup(
                         
@@ -70,6 +74,8 @@ public class blueCentreClearFourGPAuto extends SequentialCommandGroup {
 
             new SequentialCommandGroup(
               // note 2 pick up 
+              
+    
               new ParallelDeadlineGroup(
 
                     new SequentialCommandGroup(
@@ -109,8 +115,7 @@ public class blueCentreClearFourGPAuto extends SequentialCommandGroup {
                           
                         ), 
 
-              
-
+                        new autoDriveForwardSetDistance(drive, -7, DriveConstants.autoDriveLimelightSpeed), 
                         new conveyerTillSensorCleared(conveyer)
                       )
                   )

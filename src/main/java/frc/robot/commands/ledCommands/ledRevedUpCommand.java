@@ -20,6 +20,9 @@ public class ledRevedUpCommand extends Command {
 
   private int red, green, blue; 
 
+  private double shooterBottomPresentVelocity; 
+  private double shooterTopPresentVelocity; 
+
   /** Creates a new ledRevedUpCommand. */
   public ledRevedUpCommand(LightSubsystem led, ShooterSubsystem shooter, double targetTopVelocity, double targetBottomVelocity, boolean end) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -35,19 +38,30 @@ public class ledRevedUpCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    shooterBottomPresentVelocity = 0; 
+    shooterTopPresentVelocity = 0; 
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
 
-    if(Math.abs(SHOOTER_SUBSYSTEM.bottomMotorVelocity() - bottomTargetVelocity) < 100){
+    shooterTopPresentVelocity = SHOOTER_SUBSYSTEM.bottomMotorVelocity(); 
+    shooterBottomPresentVelocity = SHOOTER_SUBSYSTEM.topMotorVelocity(); 
+
+    if((shooterTopPresentVelocity/ (bottomTargetVelocity)) > 0.90 && (shooterBottomPresentVelocity/ (topTargetVelocity)) > 0.90){
       red = 0;  
       green = 255; 
       blue = 0; 
     }
 
-    LIGHT_SUBSYSTEM.setOneColour(red, green, blue);
+    else{
+      red = 200;  
+      green = 0; 
+      blue = 200; 
+    }
+
+    LIGHT_SUBSYSTEM.setOneColour(red, blue, green);
   }
 
   // Called once the command ends or is interrupted.

@@ -53,7 +53,7 @@ public final class Constants {
     public static final double driveSlew = 5; 
     public static final double turnSlew = 2;
     
-    public static final double driveSlowSpeed = 0.75; 
+    public static final double driveSlowSpeed = 0.85; 
     public static final double driveFastSpeed = 1; 
 
     public static final double turnSlowSpeed = 0.5; 
@@ -73,8 +73,8 @@ public final class Constants {
     // public static final double autoDriveForwardAndIntakeDistance = VisionConstants.desiredApproachDistance + 3; 
     public static final double autoDriveForwardAndIntakeDistance = 35; 
 
-    public static final double autoDriveSpeed = 0.60; 
-    public static final double autoDriveLimelightSpeed = 0.45; 
+    public static final double autoDriveSpeed = 0.70; 
+    public static final double autoDriveLimelightSpeed = 0.60; 
   }
 
   public static class ShooterConstants{
@@ -83,31 +83,22 @@ public final class Constants {
 
     public static final double shooterFullSpeed = 1.0; 
     public static final double shooterOffSpeed = 0.0; 
-
-    // public static final double topSpeed = 0.26;
-    // public static final double bottomSpeed = 0.28;
-
-
-    // public static final double subwooferSpeedTop = 0.50; 
-    // public static final double subwooferSpeedBottom = 0.50; 
     
-    public static final double speakerTopMotorSpeed = -5700*0.80; 
-    public static final double speakerBottomMotorSpeed = 5700*0.80; 
+    // public static final double speakerTopMotorSpeed = -5700*0.80; 
+    // public static final double speakerBottomMotorSpeed = 5700*0.80; 
 
-        
+    public static final double speakerTopMotorSpeed = -5700*0.25; 
+    public static final double speakerBottomMotorSpeed = 5700*0.25; 
+
+    // DISTANCE SHOT
     public static final double speakerAutoTopMotorSpeed = -5700*0.75; 
-    public static final double speakerAutoBottomMotorSpeed = 5700*0.35; 
+    public static final double speakerAutoBottomMotorSpeed = 5700*0.40; 
   
+    public static final double speakerTopMotorSpeedAutoLine = -5700*0.95; 
+    public static final double speakerBottomMotorSpeedAutoLine = 5700*0.40; 
   
-    public static final double speakerTopMotorSpeedAutoLine = -5700*0.9; 
-    public static final double speakerBottomMotorSpeedAutoLine = 5700*0.4; 
-
-
     public static final double autoCentreTopMotorSpeed = -5700 * 0.50; 
     public static final double autoCentreBottomMotorSpeed = 5700 * 0.50; 
-
-    // public static final double ampTopMotorSpeed = 5700 * 0.1; 
-    // public static final double ampBottomMotorSpeed = 5700 * 0.35; 
 
     public static final double shooterHoldInSpeed = 5700 * -0.1; 
     public static final double ampTopMotorSpeed = 5700 * -0.2; 
@@ -138,27 +129,11 @@ public final class Constants {
     public static final double roughAlignmentTolerance = 5.5; 
     public static final double fineAlighnmentTolerance = 3.5; 
 
-    public static final double desiredApproachDistance = 40; 
+    public static final double desiredApproachDistance = 35; 
 
     public static final double limelightTurnSpeedLimit = 0.30; 
-  }
 
-
-  public static class WristConstants{
-    public static final int wristMotorId = 10; 
-
-
-    public static final double wristKP = 0.05; 
-    public static final double wristKI = 0.0; 
-    public static final double wristKD = 0;
-
-    public static final double wristSpeedTolerance = 0.65; 
-    public static final double wristTolerance = 0.80; 
-    public static final double wristMaxSpeed = 1.0; 
-
-    public static final double wristHomePosition = 0; 
-    public static final double wristfeedShooterPosition = 0; 
-    public static final double wristIntakePosition = 40; 
+    public static int ambientPipeline = 1; 
   }
 
   public static class conveyerConstants{
@@ -170,8 +145,8 @@ public final class Constants {
 
   public static class photonVisionConstants{
 
-    public static double cameraHeight = Units.inchesToMeters(22); 
-    public static double cameraMountAngle = Units.degreesToRadians(45); 
+    public static double cameraHeight = Units.inchesToMeters(22.5); 
+    public static double cameraMountAngle = Units.degreesToRadians(22); 
 
     public static double ampHeight = Units.inchesToMeters(0); 
     public static double speakerHeight = Units.inchesToMeters(57); 
@@ -190,7 +165,6 @@ public final class Constants {
     public static double turnKp = 0.03; 
     public static double turnKi = 0.025; 
     public static double turnKd = 0; 
-
     
     public static int sourceLeftBlueID = 1; 
     public static int sourceRightBlueID = 2; 
@@ -216,12 +190,13 @@ public final class Constants {
     public static int stageBlueCentreID = 16; 
 
     public static double photonMaxTurnSpeed = 0.3; 
+    public static double photonMaxDriveSpeed = 0.65; 
 
   }
 
   public static class autoConstants{
-    public static int nonLightNotePipeline = 0; 
-    public static int withLightNotePipeline = 1; 
+    // public static int nonLightNotePipeline = 0; 
+
 
     public static double gyroTurnMaxSpeed = 0.6; 
   }
@@ -240,7 +215,22 @@ public final class Constants {
     public static final int[] whiteColourCode = {255, 125, 50}; 
     public static final int[] vermillionColourCode = {255, 255, 255}; 
     // public static final int policeFlashCycle = 1000; 
-  
+  }
+
+  public static class ClimbConstants{
+    public static int climbMotorID = 10; 
+
+    public static double climbKp = 0.2; 
+    public static double climbKi = 0; 
+    public static double climbKd = 0; 
+
+    public static double climbManualRetractSpeed = 0.5; 
+    public static double climbManualExtendSpeed = -0.5; 
+
+    public static double climbMaxSpeed = 1.0; 
+
+    public static double climbFullyRetractedPosition = 0; 
+    public static double climbFullyExtendedPosition = 436; 
   }
 
 }

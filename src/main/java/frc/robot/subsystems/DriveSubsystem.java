@@ -63,6 +63,10 @@ public class DriveSubsystem extends SubsystemBase {
     navx.reset();
     navx.zeroYaw();
 
+    leftMotorFront.burnFlash();
+    leftMotorBack.burnFlash();
+    rightMotorFront.burnFlash();
+    rightMotorFront.burnFlash();
   } 
 
   @Override

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.Constants.autoConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -50,6 +51,8 @@ public class visionDriveCommand extends Command {
 
   SlewRateLimiter drive_Limiter = new SlewRateLimiter(dSlew); 
   SlewRateLimiter turn_Limiter = new SlewRateLimiter(tSlew); 
+
+  private double initTime; 
 
   /** Creates a new visionDriveCommand. */
   public visionDriveCommand(DriveSubsystem drive, VisionSubsystem vision, boolean cancel, int pipelineNumber, double setPoint) {
@@ -101,6 +104,7 @@ public class visionDriveCommand extends Command {
     tvMissedCounter = 0; 
     VISION_SUBSYSTEM.setPipeline(setPipelineNumber);
     VISION_SUBSYSTEM.setLED(0);
+    initTime = System.currentTimeMillis(); 
 
   }
 
@@ -136,12 +140,29 @@ public class visionDriveCommand extends Command {
       double driveSpeed = driveVisionPID.calculate(distanceFromLimelightToGoalInches, driveSetPoint); 
       double turnSpeed = turnVisionPID.calculate(DRIVE_SUBSYSTEM.getYaw(), gyroTargetPosition); 
 
-      if(driveSpeed > 0.80){
-        driveSpeed = 0.80; 
+      if(driveSpeed > DriveConstants.autoDriveLimelightSpeed){
+        driveSpeed = DriveConstants.autoDriveLimelightSpeed; 
       }
 
-      else if(driveSpeed < -0.80){
-        driveSpeed = -0.80; 
+      else if(driveSpeed < -DriveConstants.autoDriveLimelightSpeed){
+        driveSpeed = -DriveConstants.autoDriveLimelightSpeed; 
+      }
+
+      if(turnSpeed > VisionConstants.limelightTurnSpeedLimit){
+        turnSpeed = VisionConstants.limelightTurnSpeedLimit; 
+      }
+
+      else if(turnSpeed < -VisionConstants.limelightTurnSpeedLimit){
+        turnSpeed = -VisionConstants.limelightTurnSpeedLimit; 
+      }
+
+
+      else if(Math.abs(DRIVE_SUBSYSTEM.getYaw() - gyroTargetPosition) < 1){
+        turnSpeed = 0; 
+      }
+
+      else{
+        turnSpeed = turnSpeed;
       }
 
       SmartDashboard.putNumber("limelightdistance", distanceFromLimelightToGoalInches); 
@@ -170,6 +191,10 @@ public class visionDriveCommand extends Command {
     }
 
     else if(Math.abs(driveSetPoint - distanceFromLimelightToGoalInches) < 2 && tvMissedCounter == 0){
+      return true; 
+    }
+
+    else if(Math.abs(System.currentTimeMillis() - initTime) > 4500){
       return true; 
     }
 

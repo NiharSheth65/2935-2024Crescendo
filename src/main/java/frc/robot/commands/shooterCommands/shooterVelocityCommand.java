@@ -53,7 +53,7 @@ public class shooterVelocityCommand extends Command {
     // topShooterSpeed = 0; 
     // bottomShooterSpeed = 0; 
     SHOOTER_SUBSYSTEM.setShooterVelocityMode();
-    SHOOTER_SUBSYSTEM.setRampRate(2);
+    SHOOTER_SUBSYSTEM.setRampRate(0.25);
     SHOOTER_SUBSYSTEM.setTopPIDF(topShooterKp, topShooterKi, topShooterKd, topShooterKFf);
     SHOOTER_SUBSYSTEM.setBottomPIDF(bottomShooterKp, bottomShooterKi, bottomShooterKd, bottomShooterKFf);
 
@@ -75,7 +75,10 @@ public class shooterVelocityCommand extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    SHOOTER_SUBSYSTEM.stop();
+    // SHOOTER_SUBSYSTEM.stop();
+    SHOOTER_SUBSYSTEM.setCoastMode();
+    SHOOTER_SUBSYSTEM.setShooterPowerMode();
+    SHOOTER_SUBSYSTEM.setShooter(0, 0);
   }
 
   // Returns true when the command should end.

@@ -35,6 +35,9 @@ public class visionTurnCommand extends Command {
   int targetToTrack; 
 
   double turnTolerance; 
+
+  double initTime;
+
   /** Creates a new visionTurnCommand. */
   public visionTurnCommand(DriveSubsystem drive, VisionSubsystem vision, int pipeline, boolean turn, double tolerance) {
     
@@ -73,6 +76,7 @@ public class visionTurnCommand extends Command {
     tvMissedCoutner = 0; 
     VISION_SUBSYSTEM.setPipeline(setPipelineNumber);
     VISION_SUBSYSTEM.setLED(0);
+    initTime = System.currentTimeMillis(); 
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -154,6 +158,9 @@ public class visionTurnCommand extends Command {
       return true; 
     }
     
+    else if(Math.abs(System.currentTimeMillis() - initTime) > 4000){
+      return true;
+    }
     else{
       return false; 
     }

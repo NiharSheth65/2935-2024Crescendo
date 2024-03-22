@@ -56,7 +56,7 @@ public class ConveyerIntakeTillThirdSensor extends Command {
       return true; 
     }
 
-    else if(Math.abs(System.currentTimeMillis() - initTime) > 2000){
+    else if(Math.abs(System.currentTimeMillis() - initTime) > 3000){
       return true; 
     }
 

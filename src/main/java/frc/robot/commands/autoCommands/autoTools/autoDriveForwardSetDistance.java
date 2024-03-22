@@ -32,6 +32,7 @@ public class autoDriveForwardSetDistance extends Command {
 
   private double maxDriveSpeed; 
 
+  private double initTime; 
 
   public autoDriveForwardSetDistance(DriveSubsystem drive, double distance, double maxSpeed) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -45,8 +46,6 @@ public class autoDriveForwardSetDistance extends Command {
     this.maxDriveSpeed = maxSpeed; 
     // this.leftWheelPowerPIDController = new PIDController(0.1, 0, 0); 
     // this.rightWheelPowerPIDController = new PIDController(0.1, 0, 0); 
-
-
     
     addRequirements(DRIVE_SUBSYSTEM);
   }
@@ -64,6 +63,8 @@ public class autoDriveForwardSetDistance extends Command {
     gryoTarget = DRIVE_SUBSYSTEM.getYaw(); 
 
     driveCompleted = false; 
+
+    initTime = System.currentTimeMillis(); 
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -129,6 +130,14 @@ public class autoDriveForwardSetDistance extends Command {
       return true; 
     }
 
-    return false; 
+    else if(Math.abs(System.currentTimeMillis() - initTime) > 7000){
+      return true; 
+    }
+
+    else{
+      return false; 
+    }
+    
+
   }
 }

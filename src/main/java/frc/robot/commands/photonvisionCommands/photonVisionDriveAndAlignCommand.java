@@ -34,24 +34,14 @@ public class photonVisionDriveAndAlignCommand extends Command {
   private PIDController forwardController; 
   private PIDController turnController; 
 
-  // private double driveKP = photonVisionConstants.driveKp; 
-  // private double driveKI = photonVisionConstants.driveKi; 
-  // private double driveKD = photonVisionConstants.driveKd;
-  
-  // private double turnKP = photonVisionConstants.turnKp; 
-  // private double turnKI = photonVisionConstants.turnKi; 
-  // private double turnKD = photonVisionConstants.turnKd;
-
   private double driveKP = 0.4; 
   private double driveKI = 0; 
   private double driveKD = 0;
   
-  private double turnKP = 0.2;  
+  private double turnKP = 0.4;  
   private double turnKI = 0.0; 
   private double turnKD = 0;
 
-  
-  
   double yaw; 
   double rotationSpeed; 
   double forwardSpeed; 
@@ -67,6 +57,11 @@ public class photonVisionDriveAndAlignCommand extends Command {
   private int targetId;
 
   private double bestTargetYaw; 
+
+  private double error; 
+  private boolean complete; 
+
+  private int missedCounter; 
 
   private SlewRateLimiter turnLimiter = new SlewRateLimiter(DriveConstants.turnSlew); 
 
@@ -96,6 +91,9 @@ public class photonVisionDriveAndAlignCommand extends Command {
     rotationSpeed = 0; 
     yaw = 0; 
     bestTargetYaw = 0; 
+
+    complete = false;
+    missedCounter = 0;
 
     initInitTime = System.currentTimeMillis(); 
   }
@@ -130,32 +128,16 @@ public class photonVisionDriveAndAlignCommand extends Command {
         // Calculate alignment based on the target's position
         yaw = bestTarget.getYaw();
         bestTargetYaw = yaw; 
-
-        // Logic to align the robot using xOffset
-        // For simplicity, just printing out the offset here
-        // Use xOffset to control your robot's drivetrain here
-        // This will depend on your robot's specific drivetrain and control system
-
         initTime = System.currentTimeMillis();
-
-        range =
-                            PhotonUtils.calculateDistanceToTargetMeters(
-                                    CAMERA_HEIGHT_METERS,
-                                    TARGET_HEIGHT_METERS,
-                                    CAMERA_PITCH_RADIANS,
-                                    Units.degreesToRadians(result.getBestTarget().getPitch()));
-
-
-        forwardSpeed = forwardController.calculate(range, GOAL_RANGE_METERS); 
+        missedCounter = 0;
      }
      else{
       initTime = initInitTime;
      }
     }else{
-      yaw = 0; 
-      // rotationSpeed = 0; 
-      forwardSpeed = 0;
+      yaw = 11; 
       initTime = initInitTime;
+      missedCounter++; 
     }
 
 
@@ -172,13 +154,14 @@ public class photonVisionDriveAndAlignCommand extends Command {
 
     DRIVE_SUBSYSTEM.setTank(turnLimiter.calculate(rotationSpeed), -turnLimiter.calculate(rotationSpeed));
 
-    SmartDashboard.putNumber(VISION_PREFIX + "photon-please-work-yaw", yaw); 
-
+    SmartDashboard.putNumber("align missed conter", missedCounter); 
+    error = bestTargetYaw - 0; 
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    missedCounter = 0;
     DRIVE_SUBSYSTEM.stop(); 
   }
 
@@ -189,17 +172,19 @@ public class photonVisionDriveAndAlignCommand extends Command {
       return true; 
     }
 
-
-    else if(Math.abs(bestTargetYaw - 0) < 5){
+    else if(Math.abs(error) < 10){
       return true; 
     }
 
-
-    else if(Math.abs(System.currentTimeMillis() - initTime) > 1000){
+    else if(missedCounter > 100){
       return true; 
     }
 
-    else if(Math.abs(System.currentTimeMillis() - initInitTime) > 3000){
+    else if(Math.abs(System.currentTimeMillis() - initTime) > 5000){
+      return true; 
+    }
+
+    else if(Math.abs(System.currentTimeMillis() - initInitTime) > 5000){
       return true; 
     }
 

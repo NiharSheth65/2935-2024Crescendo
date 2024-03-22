@@ -49,7 +49,7 @@ public class conveyerTillSensorCleared extends Command {
       return true; 
     }
 
-    else if(Math.abs(System.currentTimeMillis() - initTime) > 5000){
+    else if(Math.abs(System.currentTimeMillis() - initTime) > 3000){
       return true; 
     }
 

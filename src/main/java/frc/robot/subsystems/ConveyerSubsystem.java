@@ -43,6 +43,12 @@ public class ConveyerSubsystem extends SubsystemBase {
 
     conveyerTopEncoder.setPosition(0);
     conveyerBottomEncoder.setPosition(0);
+
+    conveyerTopMotor.setSmartCurrentLimit(30);
+    conveyerBottomMotor.setSmartCurrentLimit(30);
+
+    conveyerTopMotor.burnFlash();
+    conveyerBottomMotor.burnFlash();
   }
 
   @Override
@@ -104,6 +110,7 @@ public class ConveyerSubsystem extends SubsystemBase {
     return conveyerBottomEncoder.getVelocity(); 
   }
 
+  
   public double conveyerBottomMotorCurrent(){
     return conveyerBottomMotor.getOutputCurrent(); 
   }

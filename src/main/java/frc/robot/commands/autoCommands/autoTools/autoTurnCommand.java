@@ -4,6 +4,8 @@
 
 package frc.robot.commands.autoCommands.autoTools;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,6 +27,8 @@ public class autoTurnCommand extends Command {
 
   private SlewRateLimiter turnLimiter = new SlewRateLimiter(DriveConstants.turnSlew); 
 
+  private double initTime; 
+
   public autoTurnCommand(DriveSubsystem drive, double angle, boolean end) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.DRIVE_SUBSYSTEM = drive; 
@@ -40,6 +44,7 @@ public class autoTurnCommand extends Command {
   public void initialize() {
     turnController.reset();
     DRIVE_SUBSYSTEM.zeroHeading();
+    initTime = System.currentTimeMillis(); 
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -75,10 +80,14 @@ public class autoTurnCommand extends Command {
       return true; 
     }
 
-    else if(Math.abs(DRIVE_SUBSYSTEM.getYaw() - desiredAngle) < 10){
-      return true; 
+    else if(Math.abs(initTime - System.currentTimeMillis()) > 5000){
+      return true;
     }
 
+    else if(Math.abs(DRIVE_SUBSYSTEM.getYaw() - desiredAngle) < 5){
+      return true; 
+    }
+    
     else{
       return false;
     }

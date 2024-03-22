@@ -22,7 +22,7 @@ public class PhotonvisionSubsystem extends SubsystemBase {
   private PhotonCamera photonCamera; 
 
   public PhotonvisionSubsystem() {
-    photonCamera = new PhotonCamera("CyberTrack_H3"); 
+    photonCamera = new PhotonCamera("USB_Camera"); 
   }
 
   @Override
